@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrocasCopa
 
-## Getting Started
+PWA mobile-first para colecionadores do álbum Panini FIFA World Cup 2026 trocarem figurinhas com pessoas próximas.
 
-First, run the development server:
+## Stack
+
+- **Frontend**: Next.js 16 (App Router, RSC, Server Actions) + Tailwind CSS 4 + shadcn/ui
+- **Backend**: Supabase (Postgres + PostGIS + Auth + Realtime + Storage)
+- **Deploy**: Vercel (Fluid Compute)
+
+## Setup local
+
+1. Clone o repositório.
+2. `npm install`
+3. Copie `.env.example` para `.env.local` e preencha:
+   - `NEXT_PUBLIC_SUPABASE_URL` — URL do projeto Supabase
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — publishable key
+   - `SUPABASE_SERVICE_ROLE_KEY` — service role (apenas para testes; pegar no Dashboard → Settings → API)
+   - `NEXT_PUBLIC_SITE_URL` — `http://localhost:3000` em dev
+4. `npm run dev` (porta 3000)
+
+## Comandos
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev      # dev server (Turbopack)
+npm run build    # production build
+npm test         # smoke tests (Vitest)
+npm run lint     # ESLint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## OAuth (Google)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Veja `docs/oauth-setup.md` para configurar Google OAuth no Supabase + Google Cloud Console.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Spec & Plano
 
-## Learn More
+- Spec do produto e PRD do banco: `docs/superpowers/specs/2026-05-19-trocascopa-design.md`
+- Plano de implementação (Foundation v1): `docs/superpowers/plans/2026-05-19-trocascopa-foundation.md`
 
-To learn more about Next.js, take a look at the following resources:
+## Convenções
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tabelas e funções do projeto são prefixadas com `trocas_` porque o Supabase é compartilhado com outras aplicações. Storage bucket: `trocas-avatars`.
