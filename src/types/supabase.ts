@@ -65,6 +65,87 @@ export interface Database {
         };
         Relationships: [];
       };
+      trocas_teams: {
+        Row: {
+          code: string;
+          name_pt: string;
+          group_letter: string | null;
+          sticker_count: number;
+          kind: "team" | "fwc" | "special";
+          display_order: number;
+        };
+        Insert: {
+          code: string;
+          name_pt: string;
+          group_letter?: string | null;
+          sticker_count: number;
+          kind: "team" | "fwc" | "special";
+          display_order: number;
+        };
+        Update: Partial<{
+          code: string;
+          name_pt: string;
+          group_letter: string | null;
+          sticker_count: number;
+          kind: "team" | "fwc" | "special";
+          display_order: number;
+        }>;
+        Relationships: [];
+      };
+      trocas_stickers: {
+        Row: {
+          code: string;
+          team_code: string;
+          number: number;
+          player_name: string | null;
+          position: "GK" | "DEF" | "MID" | "FWD" | "COACH" | "BADGE" | "OTHER" | null;
+          is_metalic: boolean;
+          image_url: string | null;
+        };
+        Insert: {
+          code: string;
+          team_code: string;
+          number: number;
+          player_name?: string | null;
+          position?: "GK" | "DEF" | "MID" | "FWD" | "COACH" | "BADGE" | "OTHER" | null;
+          is_metalic?: boolean;
+          image_url?: string | null;
+        };
+        Update: Partial<{
+          code: string;
+          team_code: string;
+          number: number;
+          player_name: string | null;
+          position: "GK" | "DEF" | "MID" | "FWD" | "COACH" | "BADGE" | "OTHER" | null;
+          is_metalic: boolean;
+          image_url: string | null;
+        }>;
+        Relationships: [];
+      };
+      trocas_user_stickers: {
+        Row: {
+          user_id: string;
+          sticker_code: string;
+          owned_count: number;
+          is_priority: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          sticker_code: string;
+          owned_count?: number;
+          is_priority?: boolean;
+          updated_at?: string;
+        };
+        Update: Partial<{
+          user_id: string;
+          sticker_code: string;
+          owned_count: number;
+          is_priority: boolean;
+          updated_at: string;
+        }>;
+        Relationships: [];
+      };
     };
     Views: {
       trocas_public_profiles: {
