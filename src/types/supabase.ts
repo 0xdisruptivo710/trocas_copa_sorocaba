@@ -163,7 +163,28 @@ export interface Database {
         Relationships: [];
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      trocas_find_matches: {
+        Args: {
+          p_radius_km?: number;
+          p_limit?: number;
+          p_search?: string | null;
+          p_state?: string | null;
+        };
+        Returns: {
+          other_user: string;
+          username: string;
+          full_name: string;
+          avatar_url: string | null;
+          city: string | null;
+          state: string | null;
+          distance_km: number;
+          i_can_give: number;
+          i_can_get: number;
+          match_score: number;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
