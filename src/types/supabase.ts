@@ -122,6 +122,57 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_chats: {
+        Row: {
+          id: string;
+          user_a: string;
+          user_b: string;
+          created_at: string;
+          last_message_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_a: string;
+          user_b: string;
+          created_at?: string;
+          last_message_at?: string;
+        };
+        Update: Partial<{
+          id: string;
+          user_a: string;
+          user_b: string;
+          created_at: string;
+          last_message_at: string;
+        }>;
+        Relationships: [];
+      };
+      trocas_messages: {
+        Row: {
+          id: string;
+          chat_id: string;
+          sender_id: string;
+          body: string;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          chat_id: string;
+          sender_id: string;
+          body: string;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Update: Partial<{
+          id: string;
+          chat_id: string;
+          sender_id: string;
+          body: string;
+          created_at: string;
+          read_at: string | null;
+        }>;
+        Relationships: [];
+      };
       trocas_user_stickers: {
         Row: {
           user_id: string;
@@ -183,6 +234,12 @@ export interface Database {
           i_can_get: number;
           match_score: number;
         }[];
+      };
+      trocas_open_chat: {
+        Args: {
+          other_user: string;
+        };
+        Returns: string;
       };
     };
     Enums: Record<string, never>;
