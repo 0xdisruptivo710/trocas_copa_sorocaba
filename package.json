@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "abacate:listen": "node scripts/abacate-listen.mjs",
+    "abacate:trigger": "abacatepay trigger billing.paid"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

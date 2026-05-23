@@ -134,6 +134,38 @@ Quando estiver pronto pra processar pagamentos reais:
 - **Domínio**: R$ 40/ano se for `.com.br`
 - **Total operacional pré-revenue**: ~R$ 0/mês
 
+## Testar Premium localmente (sem deploy)
+
+Se quiser validar o fluxo PIX antes de subir pra Vercel:
+
+```bash
+# 1. Instalar AbacatePay CLI (uma vez, requer Go: https://go.dev/dl/)
+go install github.com/AbacatePay/abacatepay-cli@latest
+
+# 2. Login (uma vez, abre navegador)
+abacatepay login
+
+# 3. Em UM terminal: roda dev server
+npm run dev
+
+# 4. Em OUTRO terminal: forward webhooks pro local
+npm run abacate:listen
+# (lê TROCAS_WEBHOOK_SECRET do .env.local e mantém WebSocket aberto pra AbacatePay)
+
+# 5. Em UM TERCEIRO terminal: simula um pagamento aprovado
+npm run abacate:trigger
+# OU cria um PIX real (modo dev simula automaticamente):
+abacatepay payments create pix
+```
+
+Fluxo esperado:
+1. CLI conecta no AbacatePay via WebSocket
+2. Você gera PIX em `/conta/premium` na UI
+3. `abacate:trigger` (ou pagamento real) dispara `billing.paid`
+4. CLI faz POST em `localhost:3000/api/abacatepay`
+5. Webhook valida + marca `is_premium = true`
+6. Polling do front detecta → tela "Bem-vindo ao Premium"
+
 ## Monitoramento pós-deploy
 
 - **Vercel Analytics** (free): ative em Settings → Analytics
