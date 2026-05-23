@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-sans: "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Bricolage Grotesque Fallback", ui-sans-serif;
+  --font-mono: "JetBrains Mono Fallback", ui-monospace, monospace;
+  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +40,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand-verde: var(--brand-verde);
+  --color-brand-amarelo: var(--brand-amarelo);
+  --color-brand-vermelho: var(--brand-vermelho);
+  --color-brand-azul: var(--brand-azul);
+  --color-brand-noite: var(--brand-noite);
+  --color-brand-creme: var(--brand-creme);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,72 +56,97 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Brand — constantes Copa 2026 (USA + CAN + MEX + Brasil torcedor) */
+  --brand-verde:    oklch(0.62 0.17 148);   /* Brasil / México */
+  --brand-amarelo:  oklch(0.86 0.17 92);    /* Brasil ouro */
+  --brand-vermelho: oklch(0.58 0.22 25);    /* USA / Canadá / México */
+  --brand-azul:     oklch(0.52 0.19 245);   /* USA marítimo */
+  --brand-noite:    oklch(0.18 0.04 280);   /* Estádio à noite */
+  --brand-creme:    oklch(0.985 0.012 85);  /* Off-white quente */
+
+  /* Mapeia pra shadcn */
+  --background: var(--brand-creme);
+  --foreground: oklch(0.20 0.03 280);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.20 0.03 280);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.20 0.03 280);
+  --primary: var(--brand-verde);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.015 85);
+  --secondary-foreground: oklch(0.20 0.03 280);
+  --muted: oklch(0.96 0.012 85);
+  --muted-foreground: oklch(0.45 0.025 280);
+  --accent: var(--brand-amarelo);
+  --accent-foreground: oklch(0.20 0.03 280);
+  --destructive: var(--brand-vermelho);
+  --border: oklch(0.88 0.02 85);
+  --input: oklch(0.88 0.02 85);
+  --ring: oklch(0.62 0.17 148 / 0.5);
+  --chart-1: var(--brand-verde);
+  --chart-2: var(--brand-amarelo);
+  --chart-3: var(--brand-vermelho);
+  --chart-4: var(--brand-azul);
+  --chart-5: oklch(0.45 0.025 280);
+  --radius: 0.875rem;  /* +0.25 vs default — visual de cromo */
+  --sidebar: oklch(0.985 0.012 85);
+  --sidebar-foreground: oklch(0.20 0.03 280);
+  --sidebar-primary: var(--brand-verde);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--brand-amarelo);
+  --sidebar-accent-foreground: oklch(0.20 0.03 280);
+  --sidebar-border: oklch(0.88 0.02 85);
+  --sidebar-ring: oklch(0.62 0.17 148 / 0.5);
+
+  /* Motion tokens */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 180ms;
+  --duration-base: 280ms;
+
+  /* Sombra de cromo (selo Panini) */
+  --shadow-cromo:
+    0 1px 0 0 oklch(1 0 0 / 0.6) inset,
+    0 8px 24px -8px oklch(0.18 0.04 280 / 0.25),
+    0 2px 4px -2px oklch(0.18 0.04 280 / 0.15);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: var(--brand-noite);
+  --foreground: oklch(0.97 0.01 85);
+  --card: oklch(0.24 0.04 280);
+  --card-foreground: oklch(0.97 0.01 85);
+  --popover: oklch(0.24 0.04 280);
+  --popover-foreground: oklch(0.97 0.01 85);
+  --primary: oklch(0.72 0.18 148);
+  --primary-foreground: oklch(0.18 0.04 280);
+  --secondary: oklch(0.26 0.04 280);
+  --secondary-foreground: oklch(0.97 0.01 85);
+  --muted: oklch(0.26 0.04 280);
+  --muted-foreground: oklch(0.70 0.02 85);
+  --accent: oklch(0.82 0.18 92);
+  --accent-foreground: oklch(0.18 0.04 280);
+  --destructive: oklch(0.68 0.22 25);
+  --border: oklch(1 0 0 / 0.08);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: oklch(0.72 0.18 148 / 0.5);
+  --chart-1: oklch(0.72 0.18 148);
+  --chart-2: oklch(0.82 0.18 92);
+  --chart-3: oklch(0.68 0.22 25);
+  --chart-4: oklch(0.62 0.19 245);
+  --chart-5: oklch(0.70 0.02 85);
+  --sidebar: oklch(0.20 0.04 280);
+  --sidebar-foreground: oklch(0.97 0.01 85);
+  --sidebar-primary: oklch(0.72 0.18 148);
+  --sidebar-primary-foreground: oklch(0.18 0.04 280);
+  --sidebar-accent: oklch(0.82 0.18 92);
+  --sidebar-accent-foreground: oklch(0.18 0.04 280);
+  --sidebar-border: oklch(1 0 0 / 0.08);
+  --sidebar-ring: oklch(0.72 0.18 148 / 0.5);
+
+  --shadow-cromo:
+    0 1px 0 0 oklch(1 0 0 / 0.08) inset,
+    0 8px 24px -8px oklch(0 0 0 / 0.5),
+    0 2px 4px -2px oklch(0 0 0 / 0.3);
 }
 
 @layer base {
@@ -123,8 +155,49 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "tnum" 1, "ss01" 1;
   }
   html {
     @apply font-sans;
   }
+  /* Stadium stripes — background pattern reutilizável via .bg-stripes */
+  .bg-stripes {
+    background-image: repeating-linear-gradient(
+      105deg,
+      transparent 0,
+      transparent 28px,
+      oklch(var(--brand-verde) l c h / 0.04) 28px,
+      oklch(var(--brand-verde) l c h / 0.04) 56px
+    );
+  }
+  /* Holográfico — overlay diagonal sutil (cromo Panini) */
+  .holo-overlay {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      105deg,
+      transparent 35%,
+      oklch(1 0 0 / 0.10) 50%,
+      transparent 65%
+    );
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
 }
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.animate-pulse-soft { animation: pulse-soft 2s var(--ease-out-soft) infinite; }
+
+@keyframes stripes-scroll {
+  from { background-position: 0 0; }
+  to { background-position: 200px 0; }
+}
+.animate-stripes { animation: stripes-scroll 60s linear infinite; }

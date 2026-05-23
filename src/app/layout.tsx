@@ -1,31 +1,56 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Bricolage_Grotesque } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sans = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const display = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "TrocasCopa",
-  description: "Troque figurinhas da Copa 2026 com colecionadores perto de você.",
+  title: {
+    default: "TrocasCopa — Álbum da Copa 2026",
+    template: "%s · TrocasCopa",
+  },
+  description:
+    "Complete seu álbum Panini da Copa 2026 sem repetir sozinho. Encontre colecionadores perto, troque figurinhas e viva a Copa.",
   manifest: "/manifest.webmanifest",
+  applicationName: "TrocasCopa",
   appleWebApp: {
     capable: true,
     title: "TrocasCopa",
     statusBarStyle: "black-translucent",
   },
+  openGraph: {
+    type: "website",
+    siteName: "TrocasCopa",
+    locale: "pt_BR",
+    title: "TrocasCopa — Álbum da Copa 2026",
+    description:
+      "Complete seu álbum Panini da Copa 2026. Encontre colecionadores perto, troque figurinhas, viva a Copa.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TrocasCopa — Álbum da Copa 2026",
+    description:
+      "Complete seu álbum Panini da Copa 2026. Encontre colecionadores perto e troque.",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#15803d" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b1330" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -40,9 +65,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${sans.variable} ${display.variable} h-full antialiased`}
     >
-      <body className="min-h-dvh bg-background font-sans" suppressHydrationWarning>
+      <body
+        className="min-h-dvh bg-background font-sans text-foreground"
+        suppressHydrationWarning
+      >
         {children}
         <Toaster richColors position="top-center" />
       </body>
