@@ -18,7 +18,13 @@ export function ConversarButton({ otherUserId }: { otherUserId: string }) {
   };
 
   return (
-    <Button onClick={onClick} disabled={pending} className="w-full" size="lg">
+    <Button
+      onClick={onClick}
+      disabled={pending}
+      className="w-full"
+      size="lg"
+      variant="festa"
+    >
       <MessageCircle className="mr-2 size-4" aria-hidden />
       {pending ? "Abrindo…" : "Conversar"}
     </Button>

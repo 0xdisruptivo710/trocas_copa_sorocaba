@@ -204,7 +204,13 @@ export function PremiumFlow() {
           </p>
         </div>
 
-        <Button onClick={onGenerate} disabled={pending} className="w-full" size="lg">
+        <Button
+          onClick={onGenerate}
+          disabled={pending}
+          className="w-full"
+          size="lg"
+          variant="festa"
+        >
           {pending ? "Gerando PIX…" : "Gerar PIX"}
         </Button>
       </Card>

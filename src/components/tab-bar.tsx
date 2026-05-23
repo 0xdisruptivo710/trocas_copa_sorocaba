@@ -15,7 +15,7 @@ const tabs = [
 export function TabBar() {
   const path = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/95 shadow-[0_-4px_12px_-4px_oklch(0.18_0.04_280/0.1)] backdrop-blur">
       <ul className="mx-auto flex max-w-md items-stretch justify-between">
         {tabs.map((t) => {
           const active = t.href === "/" ? path === "/" : path.startsWith(t.href);
@@ -24,11 +24,27 @@ export function TabBar() {
             <li key={t.href} className="flex-1">
               <Link
                 href={t.href}
-                className={`flex flex-col items-center gap-1 py-2 text-xs ${
-                  active ? "text-foreground" : "text-muted-foreground"
+                className={`relative flex flex-col items-center gap-0.5 py-2 text-[10px] font-display font-semibold transition-colors ${
+                  active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
-                <Icon className="size-5" aria-hidden />
+                {/* Top indicator bar */}
+                {active && (
+                  <span className="absolute inset-x-3 top-0 h-[3px] rounded-full bg-primary" />
+                )}
+                {/* Highlight pill behind icon */}
+                <span
+                  className={`flex size-9 items-center justify-center rounded-full transition-all ${
+                    active ? "bg-primary/12" : ""
+                  }`}
+                >
+                  <Icon
+                    className={`size-5 transition-transform ${
+                      active ? "scale-110" : ""
+                    }`}
+                    aria-hidden
+                  />
+                </span>
                 <span>{t.label}</span>
               </Link>
             </li>

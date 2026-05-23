@@ -12,18 +12,31 @@ export function MatchCard({ match }: { match: Match }) {
     .slice(0, 2)
     .toUpperCase();
 
+  const highScore = match.match_score >= 4;
+
   return (
     <Link href={`/u/${match.username}`} className="block">
-      <Card className="flex items-center gap-3 p-3 transition-colors hover:bg-accent">
-        <Avatar className="size-12 shrink-0">
-          <AvatarImage src={match.avatar_url ?? undefined} alt={match.full_name} />
-          <AvatarFallback>{initials}</AvatarFallback>
-        </Avatar>
+      <Card className="group relative flex items-center gap-3 overflow-hidden border-border/60 bg-gradient-to-br from-card via-card to-accent/5 p-3 shadow-[var(--shadow-cromo)] transition-all hover:-translate-y-0.5 hover:border-primary/40">
+        {/* Avatar com ring duplo (verde + amarelo) */}
+        <div className="relative shrink-0">
+          <Avatar className="size-12 ring-2 ring-primary/50 ring-offset-2 ring-offset-card">
+            <AvatarImage src={match.avatar_url ?? undefined} alt={match.full_name} />
+            <AvatarFallback className="bg-primary/10 font-display font-bold text-primary">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+        </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="truncate text-sm font-semibold">{match.full_name}</p>
-            <span className="shrink-0 text-xs font-bold text-primary">
+            <p className="truncate font-display text-sm font-bold">{match.full_name}</p>
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 font-display text-xs font-extrabold tabular-nums ${
+                highScore
+                  ? "bg-primary text-primary-foreground animate-pulse-soft"
+                  : "bg-primary/15 text-primary"
+              }`}
+            >
               {match.match_score}
             </span>
           </div>
@@ -34,20 +47,24 @@ export function MatchCard({ match }: { match: Match }) {
               {match.city ? `${match.city}, ${match.state}` : match.state ?? "—"}
             </span>
             <span aria-hidden>·</span>
-            <span>{match.distance_km} km</span>
+            <span className="tabular-nums">{match.distance_km} km</span>
           </div>
 
           <div className="mt-1 flex gap-3 text-xs">
-            <span className="text-emerald-600">
-              <strong>{match.i_can_give}</strong> que você dá
+            <span className="font-display font-semibold text-primary">
+              {match.i_can_give} dá
             </span>
-            <span className="text-amber-600">
-              <strong>{match.i_can_get}</strong> que recebe
+            <span className="text-muted-foreground">·</span>
+            <span className="font-display font-semibold text-accent-foreground">
+              {match.i_can_get} recebe
             </span>
           </div>
         </div>
 
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        <ChevronRight
+          className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary"
+          aria-hidden
+        />
       </Card>
     </Link>
   );
