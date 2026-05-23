@@ -7,6 +7,7 @@ import {
 } from "@/lib/explorar/data";
 import { ProfileHeader } from "@/components/perfil/profile-header";
 import { TradePreview } from "@/components/perfil/trade-preview";
+import { ConversarButton } from "@/components/perfil/conversar-button";
 import { ChevronLeft } from "lucide-react";
 
 interface PageProps {
@@ -52,13 +53,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         <TradePreview preview={preview} />
       </section>
 
-      <section className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-sm">
-        <p className="font-medium">Chat em breve (Plano 4)</p>
-        <p className="text-muted-foreground">
-          Por enquanto você consegue ver os matches e o preview da troca. O chat
-          direto chega na próxima fase.
-        </p>
-      </section>
+      <ConversarButton otherUserId={profile.id} />
     </main>
   );
 }
