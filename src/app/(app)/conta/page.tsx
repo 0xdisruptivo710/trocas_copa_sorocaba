@@ -6,7 +6,7 @@ import { LocationCapture } from "@/components/location-capture";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/card";
-import { Crown } from "lucide-react";
+import { Crown, Gift } from "lucide-react";
 
 export default async function ContaPage() {
   const supabase = await createClient();
@@ -65,6 +65,23 @@ export default async function ContaPage() {
           </Link>
         </Card>
       )}
+
+      <Card className="space-y-3 border-primary/30 bg-primary/5 p-6">
+        <div className="flex items-center gap-2">
+          <Gift className="size-5 text-primary" aria-hidden />
+          <h2 className="font-semibold">Indique e ganhe R$ 5</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Convide amigos. Eles pagam R$ 19,90 no Premium (com cupom) e você ganha
+          R$ 5 PIX cada um.
+        </p>
+        <Link
+          href="/conta/indicar"
+          className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Meu cupom
+        </Link>
+      </Card>
 
       <Card className="p-6 space-y-3">
         <h2 className="font-semibold">Localização</h2>

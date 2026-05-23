@@ -163,6 +163,20 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_referrals: {
+        Row: {
+          id: string;
+          referrer_id: string;
+          referred_id: string;
+          source: "coupon" | "signup_link";
+          effective_at: string | null;
+          rewarded_at: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       trocas_completed_trades: {
         Row: {
           id: string;
@@ -286,6 +300,16 @@ export interface Database {
       };
     };
     Views: {
+      trocas_referral_stats: {
+        Row: {
+          user_id: string;
+          username: string;
+          total_referrals: number;
+          effective_referrals: number;
+          rewarded_referrals: number;
+        };
+        Relationships: [];
+      };
       trocas_user_reputation: {
         Row: {
           user_id: string;
@@ -353,6 +377,14 @@ export interface Database {
       trocas_confirm_trade: {
         Args: { p_trade_id: string };
         Returns: { status: string; trade_id?: string; me_confirmed?: boolean };
+      };
+      trocas_register_referral: {
+        Args: { p_referrer_username: string; p_source?: "coupon" | "signup_link" };
+        Returns: string;
+      };
+      trocas_check_referral_effective: {
+        Args: Record<string, never>;
+        Returns: null;
       };
     };
     Enums: Record<string, never>;

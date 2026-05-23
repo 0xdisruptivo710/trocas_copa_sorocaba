@@ -64,6 +64,14 @@ export async function setLocationAction(
     .eq("id", user.id);
 
   if (error) return { error: error.message };
+
+  // Pode ter destravado a indicação (localização agora preenchida)
+  try {
+    await supabase.rpc("trocas_check_referral_effective", {});
+  } catch {
+    // best-effort
+  }
+
   revalidatePath("/", "layout");
   return {};
 }

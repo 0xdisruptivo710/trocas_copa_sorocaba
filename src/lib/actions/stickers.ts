@@ -46,6 +46,15 @@ export async function setStickerQuantity(
     if (error) return { error: error.message };
   }
 
+  // Pode ter destravado indicação (primeiro cromo marcado)
+  if (newCount >= 1 && currentCount === 0) {
+    try {
+      await supabase.rpc("trocas_check_referral_effective", {});
+    } catch {
+      // best-effort
+    }
+  }
+
   revalidatePath("/album");
   revalidatePath("/", "layout");
   return {};

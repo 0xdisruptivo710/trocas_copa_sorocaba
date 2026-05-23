@@ -4,7 +4,8 @@ import type { Database } from "@/types/supabase";
 import { env } from "@/lib/env";
 
 const AUTH_PATHS = ["/login", "/cadastro", "/esqueci-senha", "/callback"];
-const PUBLIC_FILE_PREFIXES = ["/_next", "/icon", "/manifest"];
+const PUBLIC_PATH_PREFIXES = ["/u/"];
+const PUBLIC_FILE_PREFIXES = ["/_next", "/icon", "/manifest", "/api/abacatepay"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -34,9 +35,10 @@ export async function updateSession(request: NextRequest) {
   const path = url.pathname;
 
   const isAuthRoute = AUTH_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
+  const isPublicPath = PUBLIC_PATH_PREFIXES.some((p) => path.startsWith(p));
   const isPublicFile = PUBLIC_FILE_PREFIXES.some((p) => path.startsWith(p)) || path === "/manifest.webmanifest";
 
-  if (!user && !isAuthRoute && !isPublicFile) {
+  if (!user && !isAuthRoute && !isPublicPath && !isPublicFile) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
