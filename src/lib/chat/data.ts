@@ -43,6 +43,18 @@ export interface ChatThread {
   other_full_name: string;
   other_avatar_url: string | null;
   messages: ChatMessage[];
+  trades: TradeRecord[];
+}
+
+export interface TradeRecord {
+  id: string;
+  proposal_msg_id: string;
+  author_id: string;
+  partner_id: string;
+  author_confirmed_at: string | null;
+  partner_confirmed_at: string | null;
+  applied_at: string | null;
+  rated_by_me: boolean;
 }
 
 export async function listChats(userId: string): Promise<ChatListItem[]> {
@@ -143,6 +155,41 @@ export async function getChatThread(
   if (profileRes.error) throw profileRes.error;
   if (messagesRes.error) throw messagesRes.error;
 
+  const messages = messagesRes.data ?? [];
+  const proposalIds = messages.filter((m) => m.kind === "proposal").map((m) => m.id);
+
+  let trades: TradeRecord[] = [];
+  if (proposalIds.length > 0) {
+    const { data: tradeRows } = await supabase
+      .from("trocas_completed_trades")
+      .select(
+        "id, proposal_msg_id, author_id, partner_id, author_confirmed_at, partner_confirmed_at, applied_at",
+      )
+      .in("proposal_msg_id", proposalIds);
+
+    const tradeIds = (tradeRows ?? []).map((t) => t.id);
+    const ratedSet = new Set<string>();
+    if (tradeIds.length > 0) {
+      const { data: ratings } = await supabase
+        .from("trocas_trade_ratings")
+        .select("trade_id")
+        .eq("rater_id", userId)
+        .in("trade_id", tradeIds);
+      for (const r of ratings ?? []) ratedSet.add(r.trade_id);
+    }
+
+    trades = (tradeRows ?? []).map((t) => ({
+      id: t.id,
+      proposal_msg_id: t.proposal_msg_id,
+      author_id: t.author_id,
+      partner_id: t.partner_id,
+      author_confirmed_at: t.author_confirmed_at,
+      partner_confirmed_at: t.partner_confirmed_at,
+      applied_at: t.applied_at,
+      rated_by_me: ratedSet.has(t.id),
+    }));
+  }
+
   return {
     chat_id: chat.id,
     me_id: userId,
@@ -150,6 +197,7 @@ export async function getChatThread(
     other_username: profileRes.data?.username ?? "?",
     other_full_name: profileRes.data?.full_name ?? "Colecionador",
     other_avatar_url: profileRes.data?.avatar_url ?? null,
-    messages: messagesRes.data ?? [],
+    messages,
+    trades,
   };
 }

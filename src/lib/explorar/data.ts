@@ -133,9 +133,31 @@ export async function getPublicProfileByUsername(username: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("trocas_public_profiles")
-    .select("id, username, full_name, avatar_url, bio, city, state, created_at")
+    .select("id, username, full_name, avatar_url, bio, city, state, created_at, is_premium")
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (error) throw error;
   return data;
+}
+
+export interface Reputation {
+  positive: number;
+  negative: number;
+  total: number;
+  positive_pct: number | null;
+}
+
+export async function getUserReputation(userId: string): Promise<Reputation> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("trocas_user_reputation")
+    .select("positive_count, negative_count, total_ratings, positive_pct")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return {
+    positive: data?.positive_count ?? 0,
+    negative: data?.negative_count ?? 0,
+    total: data?.total_ratings ?? 0,
+    positive_pct: data?.positive_pct ?? null,
+  };
 }

@@ -163,6 +163,46 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_completed_trades: {
+        Row: {
+          id: string;
+          proposal_msg_id: string;
+          chat_id: string;
+          author_id: string;
+          partner_id: string;
+          give_codes: string[];
+          receive_codes: string[];
+          author_confirmed_at: string | null;
+          partner_confirmed_at: string | null;
+          applied_at: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      trocas_trade_ratings: {
+        Row: {
+          id: string;
+          trade_id: string;
+          rater_id: string;
+          rated_id: string;
+          score: 1 | -1;
+          comment: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          trade_id: string;
+          rater_id: string;
+          rated_id: string;
+          score: 1 | -1;
+          comment?: string | null;
+          created_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
       trocas_chats: {
         Row: {
           id: string;
@@ -246,6 +286,17 @@ export interface Database {
       };
     };
     Views: {
+      trocas_user_reputation: {
+        Row: {
+          user_id: string;
+          username: string;
+          positive_count: number;
+          negative_count: number;
+          total_ratings: number;
+          positive_pct: number | null;
+        };
+        Relationships: [];
+      };
       trocas_public_profiles: {
         Row: {
           id: string;
@@ -294,6 +345,14 @@ export interface Database {
           p_response: "accepted" | "rejected" | "cancelled";
         };
         Returns: string;
+      };
+      trocas_init_trade: {
+        Args: { p_proposal_msg_id: string };
+        Returns: string;
+      };
+      trocas_confirm_trade: {
+        Args: { p_trade_id: string };
+        Returns: { status: string; trade_id?: string; me_confirmed?: boolean };
       };
     };
     Enums: Record<string, never>;

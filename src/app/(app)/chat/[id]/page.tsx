@@ -58,7 +58,13 @@ export default async function ChatThreadPage({ params }: PageProps) {
         </Link>
       </header>
 
-      <ChatThread chatId={thread.chat_id} meId={thread.me_id} initialMessages={thread.messages} />
+      <ChatThread
+        chatId={thread.chat_id}
+        meId={thread.me_id}
+        otherId={thread.other_id}
+        initialMessages={thread.messages}
+        trades={thread.trades}
+      />
 
       <MessageComposer chatId={thread.chat_id} isPremium={isPremium} />
     </main>

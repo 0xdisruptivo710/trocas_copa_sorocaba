@@ -7,7 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatHour } from "@/lib/chat/format";
 import { StickerMini } from "./sticker-mini";
+import { TradeActions } from "./trade-actions";
 import { respondProposalAction } from "@/lib/actions/chat";
+import type { TradeRecord } from "@/lib/chat/data";
 
 type Status = "pending" | "accepted" | "rejected" | "cancelled";
 
@@ -18,6 +20,9 @@ interface Props {
   status: Status;
   createdAt: string;
   isMine: boolean;
+  meId: string;
+  otherId: string;
+  trade: TradeRecord | null;
 }
 
 export function ProposalMessage({
@@ -27,6 +32,9 @@ export function ProposalMessage({
   status,
   createdAt,
   isMine,
+  meId,
+  otherId,
+  trade,
 }: Props) {
   const [pending, start] = useTransition();
 
@@ -83,6 +91,17 @@ export function ProposalMessage({
             </div>
           </div>
         </div>
+
+        {status === "accepted" && (
+          <div className="border-t pt-2">
+            <TradeActions
+              proposalId={proposalId}
+              meId={meId}
+              otherId={otherId}
+              trade={trade}
+            />
+          </div>
+        )}
 
         {status === "pending" && (
           <div className="flex gap-2 pt-1">

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getPublicProfileByUsername,
   getTradePreview,
+  getUserReputation,
 } from "@/lib/explorar/data";
 import { ProfileHeader } from "@/components/perfil/profile-header";
 import { TradePreview } from "@/components/perfil/trade-preview";
@@ -27,7 +28,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   if (profile.id === user.id) redirect("/conta");
 
-  const preview = await getTradePreview(profile.id);
+  const [preview, reputation] = await Promise.all([
+    getTradePreview(profile.id),
+    getUserReputation(profile.id),
+  ]);
 
   return (
     <main className="space-y-6 px-6 py-6">
@@ -46,6 +50,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
         city={profile.city}
         state={profile.state}
         bio={profile.bio}
+        isPremium={profile.is_premium}
+        reputation={reputation}
       />
 
       <section className="space-y-3">

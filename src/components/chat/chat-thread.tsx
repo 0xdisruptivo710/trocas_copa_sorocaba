@@ -7,16 +7,24 @@ import { StickerCardMessage } from "./sticker-card-message";
 import { ProposalMessage } from "./proposal-message";
 import { SystemMessage } from "./system-message";
 import { markReadAction } from "@/lib/actions/chat";
-import type { ChatMessage, ProposalMetadata, StickerCardMetadata } from "@/lib/chat/data";
+import type {
+  ChatMessage,
+  ProposalMetadata,
+  StickerCardMetadata,
+  TradeRecord,
+} from "@/lib/chat/data";
 
 interface Props {
   chatId: string;
   meId: string;
+  otherId: string;
   initialMessages: ChatMessage[];
+  trades: TradeRecord[];
 }
 
-export function ChatThread({ chatId, meId, initialMessages }: Props) {
+export function ChatThread({ chatId, meId, otherId, initialMessages, trades }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const tradesByProposal = new Map(trades.map((t) => [t.proposal_msg_id, t]));
   const bottomRef = useRef<HTMLDivElement>(null);
   const [, start] = useTransition();
 
@@ -110,6 +118,9 @@ export function ChatThread({ chatId, meId, initialMessages }: Props) {
               status={(meta.status ?? "pending") as ProposalMetadata["status"]}
               createdAt={m.created_at}
               isMine={isMine}
+              meId={meId}
+              otherId={otherId}
+              trade={tradesByProposal.get(m.id) ?? null}
             />
           );
         }
