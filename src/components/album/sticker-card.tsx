@@ -57,33 +57,42 @@ export function StickerCard({
     });
   };
 
+  const borderColor =
+    status === "missing"
+      ? "border-border/60"
+      : status === "owned"
+        ? "border-primary/60"
+        : "border-accent/70";
+
   return (
     <div
-      className={`relative flex flex-col rounded-lg border ${
-        status === "missing"
-          ? "border-border bg-card"
-          : status === "owned"
-            ? "border-emerald-500/50 bg-card"
-            : "border-amber-500/50 bg-card"
-      }`}
+      className={`group relative flex flex-col overflow-hidden rounded-lg border-2 bg-card transition-all duration-200 ${borderColor} ${
+        status !== "missing" ? "shadow-[var(--shadow-cromo)]" : ""
+      } hover:-translate-y-0.5 hover:shadow-[var(--shadow-cromo)] active:scale-[0.98]`}
     >
+      {/* Topo colorido com bandeira/cor da seleção */}
       <div
-        className="flex flex-col items-center justify-center rounded-t-lg p-3"
+        className="holo-overlay relative flex flex-col items-center justify-center px-3 py-4"
         style={{ background: colors.bg, color: colors.fg }}
       >
-        <span className="text-xs font-bold opacity-80">{teamCode}</span>
-        <span className="text-2xl font-extrabold leading-none">
+        <span className="font-display text-[10px] font-bold uppercase tracking-wider opacity-85">
+          {teamCode}
+        </span>
+        <span className="font-display text-3xl font-extrabold leading-none drop-shadow-sm">
           {formatStickerNumber(code, number)}
         </span>
       </div>
 
-      <div className="flex items-center justify-between px-2 py-1.5">
+      {/* Faixa de info inferior */}
+      <div className="flex items-center justify-between bg-card px-2 py-1.5">
         <button
           type="button"
           onClick={toggle}
           aria-label={optimisticPriority ? "Remover prioridade" : "Marcar prioridade"}
           disabled={pending}
-          className="text-muted-foreground hover:text-amber-500 disabled:opacity-50"
+          className={`transition-all ${
+            optimisticPriority ? "text-accent" : "text-muted-foreground"
+          } hover:text-accent hover:scale-110 disabled:opacity-50`}
         >
           <Star
             className="size-4"
@@ -93,28 +102,28 @@ export function StickerCard({
         </button>
 
         <span
-          className={`text-xs font-medium ${
+          className={`font-display text-xs font-bold tabular-nums ${
             status === "missing"
               ? "text-muted-foreground"
               : status === "owned"
-                ? "text-emerald-600"
-                : "text-amber-600"
+                ? "text-primary"
+                : "text-accent-foreground"
           }`}
         >
           {status === "missing"
             ? "Falta"
             : status === "owned"
-              ? "Tenho"
+              ? "✓ Tenho"
               : `${optimisticCount}x`}
         </span>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={() => change(-1)}
             aria-label="Diminuir"
             disabled={pending || optimisticCount === 0}
-            className="rounded p-0.5 text-muted-foreground hover:bg-accent disabled:opacity-30"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
           >
             <Minus className="size-3.5" />
           </button>
@@ -123,7 +132,7 @@ export function StickerCard({
             onClick={() => change(1)}
             aria-label="Aumentar"
             disabled={pending}
-            className="rounded p-0.5 text-muted-foreground hover:bg-accent disabled:opacity-50"
+            className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
           >
             <Plus className="size-3.5" />
           </button>
