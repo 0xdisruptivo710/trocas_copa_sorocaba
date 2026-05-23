@@ -195,6 +195,8 @@ export interface Database {
           body: string;
           created_at: string;
           read_at: string | null;
+          kind: "text" | "sticker_card" | "proposal" | "system";
+          metadata: Record<string, unknown>;
         };
         Insert: {
           id?: string;
@@ -203,6 +205,8 @@ export interface Database {
           body: string;
           created_at?: string;
           read_at?: string | null;
+          kind?: "text" | "sticker_card" | "proposal" | "system";
+          metadata?: Record<string, unknown>;
         };
         Update: Partial<{
           id: string;
@@ -211,6 +215,8 @@ export interface Database {
           body: string;
           created_at: string;
           read_at: string | null;
+          kind: "text" | "sticker_card" | "proposal" | "system";
+          metadata: Record<string, unknown>;
         }>;
         Relationships: [];
       };
@@ -279,6 +285,13 @@ export interface Database {
       trocas_open_chat: {
         Args: {
           other_user: string;
+        };
+        Returns: string;
+      };
+      trocas_respond_to_proposal: {
+        Args: {
+          p_proposal_msg_id: string;
+          p_response: "accepted" | "rejected" | "cancelled";
         };
         Returns: string;
       };

@@ -12,6 +12,18 @@ export interface ChatListItem {
   last_sender_was_me: boolean;
 }
 
+export type MessageKind = "text" | "sticker_card" | "proposal" | "system";
+
+export interface ProposalMetadata {
+  give: string[]; // sticker codes que o autor DÁ
+  receive: string[]; // sticker codes que o autor RECEBE
+  status: "pending" | "accepted" | "rejected" | "cancelled";
+}
+
+export interface StickerCardMetadata {
+  codes: string[];
+}
+
 export interface ChatMessage {
   id: string;
   chat_id: string;
@@ -19,6 +31,8 @@ export interface ChatMessage {
   body: string;
   created_at: string;
   read_at: string | null;
+  kind: MessageKind;
+  metadata: Record<string, unknown>;
 }
 
 export interface ChatThread {
@@ -121,7 +135,7 @@ export async function getChatThread(
       .maybeSingle(),
     supabase
       .from("trocas_messages")
-      .select("id, chat_id, sender_id, body, created_at, read_at")
+      .select("id, chat_id, sender_id, body, created_at, read_at, kind, metadata")
       .eq("chat_id", chatId)
       .order("created_at", { ascending: true })
       .limit(200),

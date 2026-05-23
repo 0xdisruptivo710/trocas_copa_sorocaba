@@ -22,6 +22,13 @@ export default async function ChatThreadPage({ params }: PageProps) {
   const thread = await getChatThread(user.id, id);
   if (!thread) notFound();
 
+  const { data: me } = await supabase
+    .from("trocas_profiles")
+    .select("is_premium")
+    .eq("id", user.id)
+    .single();
+  const isPremium = me?.is_premium ?? false;
+
   const initials = thread.other_full_name
     .split(" ")
     .map((s) => s[0])
@@ -53,7 +60,7 @@ export default async function ChatThreadPage({ params }: PageProps) {
 
       <ChatThread chatId={thread.chat_id} meId={thread.me_id} initialMessages={thread.messages} />
 
-      <MessageComposer chatId={thread.chat_id} />
+      <MessageComposer chatId={thread.chat_id} isPremium={isPremium} />
     </main>
   );
 }
