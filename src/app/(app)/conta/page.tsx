@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AvatarUpload } from "@/components/avatar-upload";
 import { ProfileForm } from "@/components/profile-form";
@@ -5,6 +6,7 @@ import { LocationCapture } from "@/components/location-capture";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/card";
+import { Crown } from "lucide-react";
 
 export default async function ContaPage() {
   const supabase = await createClient();
@@ -13,7 +15,7 @@ export default async function ContaPage() {
   } = await supabase.auth.getUser();
   const { data: profile } = await supabase
     .from("trocas_profiles")
-    .select("username, full_name, bio, avatar_url, city, state")
+    .select("username, full_name, bio, avatar_url, city, state, is_premium")
     .eq("id", user!.id)
     .single();
 
@@ -30,6 +32,11 @@ export default async function ContaPage() {
 
       <Card className="p-6 space-y-4">
         <AvatarUpload avatarUrl={profile?.avatar_url ?? null} initials={initials} />
+        {profile?.is_premium && (
+          <p className="inline-flex items-center gap-1 text-xs font-medium text-amber-600">
+            <Crown className="size-3" aria-hidden /> Premium · Apoiador
+          </p>
+        )}
         <ProfileForm
           initial={{
             username: profile?.username ?? "",
@@ -38,6 +45,26 @@ export default async function ContaPage() {
           }}
         />
       </Card>
+
+      {!profile?.is_premium && (
+        <Card className="space-y-3 border-amber-500/30 bg-amber-500/5 p-6">
+          <div className="flex items-center gap-2">
+            <Crown className="size-5 text-amber-600" aria-hidden />
+            <h2 className="font-semibold">Vire Premium</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Chats ilimitados, cards de cromos no chat, propostas formais e
+            atualização automática do álbum quando você concluir uma troca.
+            Pagamento único <strong>R$ 24,90</strong>.
+          </p>
+          <Link
+            href="/conta/premium"
+            className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Conhecer Premium
+          </Link>
+        </Card>
+      )}
 
       <Card className="p-6 space-y-3">
         <h2 className="font-semibold">Localização</h2>

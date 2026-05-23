@@ -122,6 +122,47 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_billing: {
+        Row: {
+          id: string;
+          user_id: string;
+          abacate_charge_id: string;
+          product: "premium";
+          amount_cents: number;
+          status: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
+          br_code: string | null;
+          br_code_base64: string | null;
+          referral_code: string | null;
+          metadata: Record<string, unknown>;
+          created_at: string;
+          updated_at: string;
+          paid_at: string | null;
+          expires_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          abacate_charge_id: string;
+          product: "premium";
+          amount_cents: number;
+          status?: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
+          br_code?: string | null;
+          br_code_base64?: string | null;
+          referral_code?: string | null;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+          updated_at?: string;
+          paid_at?: string | null;
+          expires_at?: string | null;
+        };
+        Update: Partial<{
+          status: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
+          paid_at: string | null;
+          metadata: Record<string, unknown>;
+          updated_at: string;
+        }>;
+        Relationships: [];
+      };
       trocas_chats: {
         Row: {
           id: string;

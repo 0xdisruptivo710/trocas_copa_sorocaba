@@ -1,0 +1,117 @@
+/**
+ * Cliente AbacatePay minimal (sem SDK).
+ *
+ * Modo dev vs prod é determinado pela API key — mesma base URL.
+ * Toda response segue { data, error, success }.
+ *
+ * Docs: https://docs.abacatepay.com
+ */
+
+const BASE_URL = "https://api.abacatepay.com";
+
+interface AbacateResponse<T> {
+  data: T | null;
+  error: string | null;
+  success: boolean;
+}
+
+interface AbacateCustomer {
+  name?: string;
+  email?: string;
+  taxId?: string;
+  cellphone?: string;
+}
+
+interface AbacateMetadata {
+  [key: string]: string | number | boolean;
+}
+
+interface CreatePixPayload {
+  amount: number; // centavos
+  description?: string;
+  expiresIn?: number; // segundos
+  customer?: AbacateCustomer;
+  metadata?: AbacateMetadata;
+}
+
+export interface PixCharge {
+  id: string;
+  amount: number;
+  status: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
+  devMode: boolean;
+  brCode: string;
+  brCodeBase64: string;
+  platformFee: number;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string;
+  metadata?: AbacateMetadata;
+}
+
+function getApiKey(): string {
+  const key = process.env.ABACATEPAY_API_KEY;
+  if (!key) throw new Error("Missing env: ABACATEPAY_API_KEY");
+  return key;
+}
+
+async function request<T>(
+  method: "GET" | "POST",
+  path: string,
+  body?: unknown,
+): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${getApiKey()}`,
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: "no-store",
+  });
+
+  const json = (await res.json()) as AbacateResponse<T>;
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error ?? `AbacatePay ${method} ${path} failed (${res.status})`);
+  }
+  return json.data;
+}
+
+export async function createPixCharge(payload: CreatePixPayload): Promise<PixCharge> {
+  return request<PixCharge>("POST", "/v2/transparents/create", {
+    method: "PIX",
+    data: {
+      amount: payload.amount,
+      description: payload.description,
+      expiresIn: payload.expiresIn,
+      customer: payload.customer,
+      metadata: payload.metadata,
+    },
+  });
+}
+
+/**
+ * Public HMAC key documented by AbacatePay. Yes, it's the same for all clients —
+ * security comes from the URL-query `webhookSecret` (configured per webhook in
+ * the dashboard) combined with the signature check.
+ */
+const ABACATEPAY_PUBLIC_KEY =
+  "t9dXRhHHo3yDEj5pVDYz0frf7q6bMKyMRmxxCPIPp3RCplBfXRxqlC6ZpiWmOqj4L63qEaeUOtrCI8P0VMUgo6iIga2ri9ogaHFs0WIIywSMg0q7RmBfybe1E5XJcfC4IW3alNqym0tXoAKkzvfEjZxV6bE0oG2zJrNNYmUCKZyV0KZ3JS8Votf9EAWWYdiDkMkpbMdPggfh1EqHlVkMiTady6jOR3hyzGEHrIz2Ret0xHKMbiqkr9HS1JhNHDX9";
+
+/**
+ * Verifica HMAC do webhook contra a chave pública AbacatePay.
+ */
+export async function verifyWebhookSignature(
+  rawBody: string,
+  signatureFromHeader: string,
+): Promise<boolean> {
+  const { createHmac, timingSafeEqual } = await import("node:crypto");
+  const expected = createHmac("sha256", ABACATEPAY_PUBLIC_KEY)
+    .update(Buffer.from(rawBody, "utf8"))
+    .digest("base64");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(signatureFromHeader);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+export const PREMIUM_PRICE_CENTS = 2490; // R$ 24,90
+export const PREMIUM_DISCOUNT_CENTS = 500; // R$ 5,00 desconto com cupom
