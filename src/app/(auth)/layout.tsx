@@ -1,10 +1,14 @@
+import { Logo } from "@/components/brand/logo";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-6 py-12">
+    <main className="bg-stripes flex min-h-dvh flex-col items-center justify-center bg-background px-6 py-12">
       <div className="w-full max-w-sm space-y-6">
-        <header className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">TrocasCopa</h1>
-          <p className="text-sm text-muted-foreground">Copa 2026 — figurinhas Panini</p>
+        <header className="flex flex-col items-center text-center">
+          <Logo variant="stacked" size={140} className="mb-2" />
+          <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            EUA · Canadá · México
+          </p>
         </header>
         {children}
       </div>
