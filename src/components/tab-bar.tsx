@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, Search, BookOpen, MessageCircle, User } from "lucide-react";
 
 const tabs = [
-  { href: "/", label: "Início", icon: Home },
+  { href: "/home", label: "Início", icon: Home },
   { href: "/explorar", label: "Explorar", icon: Search },
   { href: "/album", label: "Álbum", icon: BookOpen },
   { href: "/chat", label: "Chat", icon: MessageCircle },
@@ -18,7 +18,7 @@ export function TabBar() {
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/95 shadow-[0_-4px_12px_-4px_oklch(0.18_0.04_280/0.1)] backdrop-blur">
       <ul className="mx-auto flex max-w-md items-stretch justify-between">
         {tabs.map((t) => {
-          const active = t.href === "/" ? path === "/" : path.startsWith(t.href);
+          const active = t.href === "/home" ? path === "/home" : path.startsWith(t.href);
           const Icon = t.icon;
           return (
             <li key={t.href} className="flex-1">
