@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Bricolage_Grotesque } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { CelebrateLayer } from "@/components/motion/celebrate";
 import "./globals.css";
 
 const sans = Inter({
@@ -72,6 +73,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <CelebrateLayer />
         <Toaster richColors position="top-center" />
       </body>
     </html>

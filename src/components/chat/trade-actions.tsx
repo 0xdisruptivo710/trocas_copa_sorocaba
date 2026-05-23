@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Check, ThumbsUp, ThumbsDown, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCelebrate } from "@/components/motion/celebrate";
 import {
   initTradeAction,
   confirmTradeAction,
@@ -28,6 +29,7 @@ interface Props {
 export function TradeActions({ proposalId, meId, otherId, trade }: Props) {
   const [pending, start] = useTransition();
   const [showRate, setShowRate] = useState(false);
+  const { fire } = useCelebrate();
 
   const startTrade = () => {
     start(async () => {
@@ -42,6 +44,7 @@ export function TradeActions({ proposalId, meId, otherId, trade }: Props) {
         return;
       }
       if (confirmRes.status === "applied") {
+        fire(null, "large");
         toast.success("Troca aplicada — álbuns atualizados!");
       } else {
         toast.success("Confirmado do seu lado. Aguardando o outro.");
@@ -57,6 +60,7 @@ export function TradeActions({ proposalId, meId, otherId, trade }: Props) {
         return;
       }
       if (r.status === "applied") {
+        fire(null, "large");
         toast.success("Troca aplicada — álbuns atualizados!");
       } else {
         toast.success("Confirmado. Aguardando o outro.");

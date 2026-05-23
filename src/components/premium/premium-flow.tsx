@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { createPremiumChargeAction, checkChargeStatus } from "@/lib/actions/premium";
+import { useCelebrate } from "@/components/motion/celebrate";
 
 type Step = "intro" | "qrcode" | "paid";
 
@@ -28,6 +29,7 @@ export function PremiumFlow() {
   const [charge, setCharge] = useState<Charge | null>(null);
   const [copied, setCopied] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { fire } = useCelebrate();
 
   // Polling de status assim que a charge é criada (backup do webhook).
   useEffect(() => {
@@ -37,6 +39,7 @@ export function PremiumFlow() {
       if (r.status === "PAID") {
         setStep("paid");
         if (pollRef.current) clearInterval(pollRef.current);
+        fire(null, "large");
         toast.success("Pagamento confirmado!");
         router.refresh();
       } else if (r.status === "EXPIRED" || r.status === "CANCELLED") {

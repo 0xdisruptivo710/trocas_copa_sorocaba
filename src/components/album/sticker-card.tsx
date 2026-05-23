@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, useRef } from "react";
 import { Star, Minus, Plus } from "lucide-react";
 import { TEAM_COLORS, formatStickerNumber } from "@/lib/album/teams";
 import { setStickerQuantity, togglePriority } from "@/lib/actions/stickers";
+import { useCelebrate } from "@/components/motion/celebrate";
 import { toast } from "sonner";
 
 interface Props {
@@ -26,6 +27,8 @@ export function StickerCard({
   const [optimisticCount, setOptimisticCount] = useState(ownedCount);
   const [optimisticPriority, setOptimisticPriority] = useState(isPriority);
   const [pending, start] = useTransition();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { fire } = useCelebrate();
 
   const colors = TEAM_COLORS[teamCode] ?? { bg: "#404040", fg: "#ffffff" };
 
@@ -35,7 +38,12 @@ export function StickerCard({
   const change = (delta: 1 | -1) => {
     const next = Math.max(0, Math.min(99, optimisticCount + delta));
     if (next === optimisticCount) return;
+    const wasMissing = optimisticCount === 0;
     setOptimisticCount(next);
+    // Confete na 1ª aquisição (0 → 1)
+    if (wasMissing && next >= 1) {
+      fire(cardRef.current, "small");
+    }
     start(async () => {
       const r = await setStickerQuantity(code, delta);
       if (r.error) {
@@ -66,6 +74,7 @@ export function StickerCard({
 
   return (
     <div
+      ref={cardRef}
       className={`group relative flex flex-col overflow-hidden rounded-lg border-2 bg-card transition-all duration-200 ${borderColor} ${
         status !== "missing" ? "shadow-[var(--shadow-cromo)]" : ""
       } hover:-translate-y-0.5 hover:shadow-[var(--shadow-cromo)] active:scale-[0.98]`}
