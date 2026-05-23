@@ -42,7 +42,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-dvh bg-background font-sans">
+      <body className="min-h-dvh bg-background font-sans" suppressHydrationWarning>
         {children}
         <Toaster richColors position="top-center" />
       </body>
