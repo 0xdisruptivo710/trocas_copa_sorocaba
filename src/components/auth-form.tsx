@@ -12,9 +12,10 @@ interface Props {
   mode: Mode;
   action: (formData: FormData) => Promise<{ error?: string } | void>;
   googleAction?: () => Promise<{ error?: string } | void>;
+  hiddenFields?: Record<string, string>;
 }
 
-export function AuthForm({ mode, action, googleAction }: Props) {
+export function AuthForm({ mode, action, googleAction, hiddenFields }: Props) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +34,11 @@ export function AuthForm({ mode, action, googleAction }: Props) {
 
   return (
     <form action={submit} className="space-y-4">
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([k, v]) => (
+          <input key={k} type="hidden" name={k} value={v} />
+        ))}
+
       {mode === "signup" && (
         <div className="space-y-2">
           <Label htmlFor="full_name">Nome completo</Label>

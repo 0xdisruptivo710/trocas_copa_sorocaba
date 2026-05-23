@@ -2,23 +2,22 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
 
-async function consumeReferralCookie(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const c = await cookies();
-  const code = c.get("trocas_referral")?.value;
-  if (!code || !/^[a-z0-9_]{3,30}$/.test(code)) return;
+async function consumeReferral(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  via: string | null | undefined,
+) {
+  if (!via || !/^[a-z0-9_]{3,30}$/.test(via)) return;
   try {
     await supabase.rpc("trocas_register_referral", {
-      p_referrer_username: code,
+      p_referrer_username: via,
       p_source: "signup_link",
     });
   } catch {
     // best-effort — não bloqueia signup
   }
-  c.delete("trocas_referral");
 }
 
 type ActionResult = { error?: string };
@@ -42,9 +41,9 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
   });
   if (error) return { error: error.message };
 
-  // Se veio com cupom de indicação na URL (cookie trocas_referral), registra
-  // a referência. Best-effort — não bloqueia onboarding.
-  await consumeReferralCookie(supabase);
+  // Se veio com cupom de indicação no form (?via=USER), registra a referência.
+  const via = String(formData.get("referral_via") ?? "").trim().toLowerCase();
+  await consumeReferral(supabase, via);
 
   redirect("/onboarding/perfil");
 }
