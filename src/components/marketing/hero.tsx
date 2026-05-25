@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 
 export function Hero() {
   return (
@@ -20,24 +20,24 @@ export function Hero() {
           <div className="space-y-6">
             {/* Eyebrow */}
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-display font-semibold text-primary">
-              <span className="size-1.5 animate-pulse-soft rounded-full bg-primary" />
-              COPA DO MUNDO 2026 — EUA · CAN · MEX
+              <MapPin className="size-3" aria-hidden />
+              SOROCABA & REGIÃO · COPA 2026
             </div>
 
             {/* Headline */}
             <h1 className="font-display text-4xl font-extrabold leading-[0.95] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Complete o álbum.
+              Complete o álbum
               <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Troque com quem tá perto.
+                trocando com vizinho.
               </span>
-              <br />
-              Viva a Copa.
             </h1>
 
             <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
-              Esqueça as repetidas paradas na gaveta. O TrocasCopa cruza seu álbum
-              com o de colecionadores do seu bairro e fecha a troca direto no chat.
+              O Trocas Copa Sorocaba conecta colecionadores da Panini Copa 2026
+              aqui da região — Sorocaba, Votorantim, Araçoiaba, Piedade,
+              Itapetininga e cidades próximas. Encontra quem tem o que te falta
+              e fecha a troca no chat.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -64,7 +64,7 @@ export function Hero() {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-accent" />
-                Matching por GPS
+                Trocas presenciais
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-destructive" />

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setLocationAction } from "@/lib/actions/profile";
+import { SOROCABA_CITIES, REGION_UF } from "@/lib/explorar/states";
 
 interface Props {
   nextHref?: string;
@@ -18,38 +19,6 @@ interface ResolvedLocation {
   city: string;
   state: string;
 }
-
-const STATE_MAP: Record<string, string> = {
-  Acre: "AC",
-  Alagoas: "AL",
-  "Amapá": "AP",
-  Amazonas: "AM",
-  Bahia: "BA",
-  "Ceará": "CE",
-  "Distrito Federal": "DF",
-  "Espírito Santo": "ES",
-  "Goiás": "GO",
-  "Maranhão": "MA",
-  "Mato Grosso": "MT",
-  "Mato Grosso do Sul": "MS",
-  "Minas Gerais": "MG",
-  "Pará": "PA",
-  "Paraíba": "PB",
-  "Paraná": "PR",
-  Pernambuco: "PE",
-  "Piauí": "PI",
-  "Rio de Janeiro": "RJ",
-  "Rio Grande do Norte": "RN",
-  "Rio Grande do Sul": "RS",
-  "Rondônia": "RO",
-  Roraima: "RR",
-  "Santa Catarina": "SC",
-  "São Paulo": "SP",
-  Sergipe: "SE",
-  Tocantins: "TO",
-};
-
-const UF_LIST = Object.values(STATE_MAP).sort();
 
 interface NominatimAddress {
   city?: string;
@@ -80,16 +49,14 @@ async function reverseGeocode(
     addr.village ??
     addr.municipality ??
     addr.county ??
-    "Cidade desconhecida";
-  const state = (addr.state && STATE_MAP[addr.state]) ?? "SP";
-  return { city, state };
+    "Sorocaba";
+  return { city, state: REGION_UF };
 }
 
 async function forwardGeocode(
   city: string,
-  state: string,
 ): Promise<{ lat: number; lng: number } | null> {
-  const q = encodeURIComponent(`${city}, ${state}, Brasil`);
+  const q = encodeURIComponent(`${city}, SP, Brasil`);
   const r = await fetch(
     `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&limit=1&accept-language=pt-BR`,
   );
@@ -102,13 +69,13 @@ async function forwardGeocode(
 function explainError(err: GeolocationPositionError): string {
   switch (err.code) {
     case err.PERMISSION_DENIED:
-      return "Você bloqueou a permissão de localização. Clica no cadeado da URL → Permitir localização e tenta de novo.";
+      return "Você bloqueou a permissão. Clica no 🔒 da URL → Permitir localização e tenta de novo.";
     case err.POSITION_UNAVAILABLE:
-      return "GPS indisponível agora (sem sinal ou desligado). Tenta de novo perto da janela ou usa entrada manual.";
+      return "GPS indisponível (sem sinal ou desligado). Usa entrada manual abaixo.";
     case err.TIMEOUT:
-      return "GPS demorou demais pra responder. Tenta de novo ou usa entrada manual.";
+      return "GPS demorou demais. Usa entrada manual abaixo.";
     default:
-      return "Não consegui pegar localização. Tenta entrada manual.";
+      return "Não consegui pegar localização. Usa entrada manual.";
   }
 }
 
@@ -117,7 +84,6 @@ export function LocationCapture({ nextHref }: Props) {
   const [resolved, setResolved] = useState<ResolvedLocation | null>(null);
   const [showManual, setShowManual] = useState(false);
   const [manualCity, setManualCity] = useState("");
-  const [manualState, setManualState] = useState("SP");
   const router = useRouter();
 
   const detect = (highAccuracy = true) => {
@@ -141,7 +107,6 @@ export function LocationCapture({ nextHref }: Props) {
         toast.success(`Localização: ${city}, ${state}`);
       } catch (err) {
         if (err instanceof GeolocationPositionError) {
-          // Se foi timeout com GPS, tenta uma vez sem highAccuracy (IP-based)
           if (err.code === err.TIMEOUT && highAccuracy) {
             toast.info("GPS demorou. Tentando rede/Wi-Fi…");
             detect(false);
@@ -156,26 +121,31 @@ export function LocationCapture({ nextHref }: Props) {
     });
   };
 
-  const detectFromManual = () => {
-    if (!manualCity.trim()) {
-      toast.error("Digita o nome da cidade.");
-      return;
-    }
+  const pickCity = (city: string) => {
+    setManualCity(city);
     start(async () => {
-      const coords = await forwardGeocode(manualCity.trim(), manualState);
+      const coords = await forwardGeocode(city);
       if (!coords) {
-        toast.error("Cidade não encontrada. Confere a grafia.");
+        toast.error("Não achei essa cidade. Confere a grafia.");
         return;
       }
       setResolved({
         latitude: coords.lat,
         longitude: coords.lng,
-        city: manualCity.trim(),
-        state: manualState,
+        city,
+        state: REGION_UF,
       });
       setShowManual(false);
-      toast.success(`Localização: ${manualCity.trim()}, ${manualState}`);
+      toast.success(`Localização: ${city}, ${REGION_UF}`);
     });
+  };
+
+  const submitManual = () => {
+    if (!manualCity.trim()) {
+      toast.error("Digita o nome da cidade.");
+      return;
+    }
+    pickCity(manualCity.trim());
   };
 
   const save = () => {
@@ -199,8 +169,9 @@ export function LocationCapture({ nextHref }: Props) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Usamos sua localização só pra calcular distância com outros colecionadores.
-        Sua posição exata nunca aparece pra terceiros — só a distância arredondada.
+        O Trocas Copa Sorocaba conecta colecionadores de{" "}
+        <strong className="text-foreground">Sorocaba e região</strong>. Sua posição
+        exata nunca aparece pra terceiros — só a distância arredondada.
       </p>
 
       {!resolved && !showManual && (
@@ -212,63 +183,68 @@ export function LocationCapture({ nextHref }: Props) {
             variant="festa"
             size="lg"
           >
-            {pending ? "Detectando…" : "Detectar minha localização"}
+            {pending ? "Detectando…" : "Detectar pelo GPS"}
           </Button>
           <button
             type="button"
             onClick={() => setShowManual(true)}
             className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
           >
-            Não funciona? Digitar cidade manualmente
+            Ou escolhe sua cidade manualmente
           </button>
         </>
       )}
 
       {!resolved && showManual && (
-        <div className="space-y-3 rounded-lg border bg-card p-4">
-          <div className="space-y-2">
-            <Label htmlFor="city">Cidade</Label>
-            <Input
-              id="city"
-              value={manualCity}
-              onChange={(e) => setManualCity(e.target.value)}
-              placeholder="Ex: Sorocaba"
-              autoComplete="address-level2"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="uf">UF</Label>
-            <select
-              id="uf"
-              value={manualState}
-              onChange={(e) => setManualState(e.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
-            >
-              {UF_LIST.map((uf) => (
-                <option key={uf} value={uf}>
-                  {uf}
-                </option>
+        <div className="space-y-4 rounded-lg border bg-card p-4">
+          <div>
+            <p className="mb-2 font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Cidades da região
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {SOROCABA_CITIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => pickCity(c)}
+                  disabled={pending}
+                  className="rounded-full border border-border bg-background px-2.5 py-1 text-xs hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+                >
+                  {c}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setShowManual(false)}
-              disabled={pending}
-            >
-              Voltar ao GPS
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={detectFromManual}
-              disabled={pending || manualCity.trim().length === 0}
-              variant="festa"
-            >
-              {pending ? "Buscando…" : "Buscar"}
-            </Button>
+
+          <div className="border-t pt-3">
+            <Label htmlFor="city" className="mb-2 block">
+              Outra cidade?
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="city"
+                value={manualCity}
+                onChange={(e) => setManualCity(e.target.value)}
+                placeholder="Ex: Salto"
+                autoComplete="address-level2"
+              />
+              <Button
+                onClick={submitManual}
+                disabled={pending || manualCity.trim().length === 0}
+                variant="festa"
+              >
+                Buscar
+              </Button>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowManual(false)}
+            className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+          >
+            ← Voltar ao GPS
+          </button>
         </div>
       )}
 

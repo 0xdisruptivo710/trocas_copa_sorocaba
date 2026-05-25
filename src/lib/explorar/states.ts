@@ -1,29 +1,34 @@
-export const BR_STATES: { code: string; name: string }[] = [
-  { code: "AC", name: "Acre" },
-  { code: "AL", name: "Alagoas" },
-  { code: "AP", name: "Amapá" },
-  { code: "AM", name: "Amazonas" },
-  { code: "BA", name: "Bahia" },
-  { code: "CE", name: "Ceará" },
-  { code: "DF", name: "Distrito Federal" },
-  { code: "ES", name: "Espírito Santo" },
-  { code: "GO", name: "Goiás" },
-  { code: "MA", name: "Maranhão" },
-  { code: "MT", name: "Mato Grosso" },
-  { code: "MS", name: "Mato Grosso do Sul" },
-  { code: "MG", name: "Minas Gerais" },
-  { code: "PA", name: "Pará" },
-  { code: "PB", name: "Paraíba" },
-  { code: "PR", name: "Paraná" },
-  { code: "PE", name: "Pernambuco" },
-  { code: "PI", name: "Piauí" },
-  { code: "RJ", name: "Rio de Janeiro" },
-  { code: "RN", name: "Rio Grande do Norte" },
-  { code: "RS", name: "Rio Grande do Sul" },
-  { code: "RO", name: "Rondônia" },
-  { code: "RR", name: "Roraima" },
-  { code: "SC", name: "Santa Catarina" },
-  { code: "SP", name: "São Paulo" },
-  { code: "SE", name: "Sergipe" },
-  { code: "TO", name: "Tocantins" },
-];
+/**
+ * Cidades da Região Metropolitana de Sorocaba + entorno.
+ * O app é focado nessa região; UF é sempre SP (não exibimos seletor).
+ *
+ * Lista usada em sugestões do LocationCapture e filtros do Explorar.
+ */
+
+export const SOROCABA_CITIES = [
+  "Sorocaba",
+  "Votorantim",
+  "Araçoiaba da Serra",
+  "Piedade",
+  "Itapetininga",
+  "Salto de Pirapora",
+  "Iperó",
+  "Tatuí",
+  "Capela do Alto",
+  "Cesário Lange",
+  "Boituva",
+  "Porto Feliz",
+  "São Roque",
+  "Mairinque",
+  "Alumínio",
+  "Ibiúna",
+  "Pilar do Sul",
+  "Sarapuí",
+  "Salto",
+  "Itu",
+] as const;
+
+export type SorocabaCity = (typeof SOROCABA_CITIES)[number];
+
+export const REGION_LABEL = "Sorocaba e região";
+export const REGION_UF = "SP";

@@ -11,11 +11,12 @@ export function FinalCTA() {
       />
       <div className="relative mx-auto max-w-3xl px-4 text-center">
         <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-          Pronto pra completar
-          <br />o álbum de 2026?
+          Bora completar o álbum
+          <br />aqui em Sorocaba?
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base opacity-90 sm:text-lg">
-          Cadastro grátis, sem cartão. Comece em menos de 30 segundos.
+          Cadastro grátis, sem cartão. Em menos de 30 segundos você já tá
+          procurando matches na região.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link

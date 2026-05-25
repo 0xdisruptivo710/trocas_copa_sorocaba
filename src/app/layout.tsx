@@ -22,31 +22,31 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "TrocasCopa — Álbum da Copa 2026",
-    template: "%s · TrocasCopa",
+    default: "Trocas Copa Sorocaba — Álbum da Copa 2026",
+    template: "%s · Trocas Copa Sorocaba",
   },
   description:
-    "Complete seu álbum Panini da Copa 2026 sem repetir sozinho. Encontre colecionadores perto, troque figurinhas e viva a Copa.",
+    "Complete seu álbum Panini da Copa 2026 sem repetir sozinho. Encontre colecionadores em Sorocaba, Votorantim, Araçoiaba, Piedade, Itapetininga e região, e troque figurinhas direto pelo app.",
   manifest: "/manifest.webmanifest",
-  applicationName: "TrocasCopa",
+  applicationName: "Trocas Copa Sorocaba",
   appleWebApp: {
     capable: true,
-    title: "TrocasCopa",
+    title: "Trocas Copa Sorocaba",
     statusBarStyle: "black-translucent",
   },
   openGraph: {
     type: "website",
-    siteName: "TrocasCopa",
+    siteName: "Trocas Copa Sorocaba",
     locale: "pt_BR",
-    title: "TrocasCopa — Álbum da Copa 2026",
+    title: "Trocas Copa Sorocaba — Álbum da Copa 2026",
     description:
-      "Complete seu álbum Panini da Copa 2026. Encontre colecionadores perto, troque figurinhas, viva a Copa.",
+      "Complete seu álbum Panini da Copa 2026 em Sorocaba e região. Encontre colecionadores perto, troque figurinhas, viva a Copa.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TrocasCopa — Álbum da Copa 2026",
+    title: "Trocas Copa Sorocaba — Álbum da Copa 2026",
     description:
-      "Complete seu álbum Panini da Copa 2026. Encontre colecionadores perto e troque.",
+      "Complete seu álbum Panini da Copa 2026. Encontre colecionadores em Sorocaba e região.",
   },
 };
 

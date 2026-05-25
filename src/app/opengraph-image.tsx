@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "TrocasCopa — Álbum da Copa 2026";
+export const alt = "Trocas Copa Sorocaba — Álbum da Copa 2026";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,24 +43,24 @@ export default function OpenGraphImage() {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span
               style={{
-                fontSize: 56,
+                fontSize: 52,
                 fontWeight: 800,
                 letterSpacing: -2,
                 lineHeight: 1,
               }}
             >
-              trocascopa
+              trocas copa
             </span>
             <span
               style={{
-                fontSize: 18,
-                fontWeight: 700,
+                fontSize: 38,
+                fontWeight: 800,
                 color: "#facc15",
-                letterSpacing: 4,
-                marginTop: 8,
+                letterSpacing: 6,
+                marginTop: 4,
               }}
             >
-              COPA 2026
+              SOROCABA
             </span>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <h1
             style={{
-              fontSize: 96,
+              fontSize: 84,
               fontWeight: 800,
               letterSpacing: -3,
               lineHeight: 0.95,
@@ -77,19 +77,19 @@ export default function OpenGraphImage() {
               maxWidth: 1000,
             }}
           >
-            Troque figurinhas <br />
-            <span style={{ color: "#facc15" }}>sem repetir sozinho.</span>
+            Complete o álbum <br />
+            <span style={{ color: "#facc15" }}>trocando com vizinho.</span>
           </h1>
           <p
             style={{
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: 500,
               opacity: 0.9,
               margin: 0,
               maxWidth: 900,
             }}
           >
-            Encontra colecionadores perto de você e fecha a troca no chat.
+            Sorocaba · Votorantim · Araçoiaba · Piedade · Itapetininga · região
           </p>
         </div>
 

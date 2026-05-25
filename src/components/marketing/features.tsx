@@ -3,8 +3,8 @@ import { MapPin, Sparkles, Lock, Trophy } from "lucide-react";
 const FEATURES = [
   {
     icon: MapPin,
-    title: "Matches por proximidade",
-    body: "Raio de 5 a 100km via GPS. Encontra trocas perto pra entrega presencial sem frete caro.",
+    title: "Matches na sua região",
+    body: "Raio de 3 a 50km — cobre Sorocaba, Votorantim, Araçoiaba, Piedade, Itapetininga e cidades vizinhas. Trocas presenciais sem frete.",
   },
   {
     icon: Sparkles,
@@ -29,10 +29,11 @@ export function Features() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Pra completar o álbum de verdade
+            Feito pra Sorocaba e região
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Sem grupo de WhatsApp gigante, sem combinar troca por DM.
+            Sem grupo de WhatsApp gigante, sem combinar troca por DM, sem trocar
+            telefone com estranho.
           </p>
         </div>
 

@@ -11,7 +11,7 @@ const STEPS = [
     n: "2",
     icon: Users,
     title: "Encontra quem tá perto",
-    body: "A gente cruza sua coleção com a de outros colecionadores num raio até 100 km e ordena por melhor match.",
+    body: "A gente cruza sua coleção com colecionadores da região (Sorocaba e cidades vizinhas, até 50km) e ordena por melhor match.",
   },
   {
     n: "3",

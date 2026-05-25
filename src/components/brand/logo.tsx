@@ -15,7 +15,7 @@ const SRC: Record<NonNullable<Props["variant"]>, string> = {
 const RATIO: Record<NonNullable<Props["variant"]>, [number, number]> = {
   full: [280, 64],
   mark: [64, 64],
-  stacked: [200, 200],
+  stacked: [220, 220],
 };
 
 export function Logo({ variant = "full", size, className }: Props) {

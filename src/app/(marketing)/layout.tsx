@@ -10,8 +10,12 @@ export default function MarketingLayout({
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/" aria-label="TrocasCopa">
-            <Logo variant="full" size={32} />
+          <Link href="/" aria-label="Trocas Copa Sorocaba" className="flex items-center gap-2">
+            <Logo variant="mark" size={32} />
+            <span className="font-display text-base font-extrabold leading-tight">
+              trocas copa
+              <span className="ml-1 text-primary">SOROCABA</span>
+            </span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link
@@ -35,8 +39,8 @@ export default function MarketingLayout({
       <footer className="border-t border-border/60 bg-muted/30 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
           <p>
-            © {new Date().getFullYear()} TrocasCopa — Feito por torcedores, pra
-            torcedores.
+            © {new Date().getFullYear()} Trocas Copa Sorocaba — Feito pra
+            torcedores da região.
           </p>
           <div className="flex gap-4">
             <Link href="/login" className="hover:text-foreground">

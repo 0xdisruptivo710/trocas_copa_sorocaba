@@ -1,7 +1,7 @@
 {
-  "name": "TrocasCopa",
-  "short_name": "TrocasCopa",
-  "description": "Troque figurinhas da Copa 2026 com quem tá perto",
+  "name": "Trocas Copa Sorocaba",
+  "short_name": "Trocas Copa",
+  "description": "Troque figurinhas da Copa 2026 com colecionadores de Sorocaba e região",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1b1330",
