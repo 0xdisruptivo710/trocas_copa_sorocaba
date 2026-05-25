@@ -8,7 +8,7 @@ export interface Match {
   avatar_url: string | null;
   city: string | null;
   state: string | null;
-  distance_km: number;
+  distance_km: number | null;
   i_can_give: number;
   i_can_get: number;
   match_score: number;
@@ -16,22 +16,25 @@ export interface Match {
 
 export type FindMatchesResult =
   | { kind: "ok"; matches: Match[] }
-  | { kind: "no_location" }
   | { kind: "not_authenticated" }
   | { kind: "error"; message: string };
 
-export async function findMatches(query: ExploreQuery): Promise<FindMatchesResult> {
+export async function findMatches(
+  query: ExploreQuery,
+  opts: { onlyWithMatches?: boolean } = {},
+): Promise<FindMatchesResult> {
   const supabase = await createClient();
+  const onlyWithMatches = opts.onlyWithMatches ?? true;
   const { data, error } = await supabase.rpc("trocas_find_matches", {
     p_radius_km: query.radius,
     p_limit: 50,
     p_search: query.q || null,
     p_state: query.state,
+    p_only_with_matches: onlyWithMatches,
   });
 
   if (error) {
     if (error.code === "42501") return { kind: "not_authenticated" };
-    if (error.message?.includes("set your location")) return { kind: "no_location" };
     return { kind: "error", message: error.message };
   }
   return { kind: "ok", matches: (data ?? []) as Match[] };

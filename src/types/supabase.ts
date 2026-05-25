@@ -343,6 +343,7 @@ export interface Database {
           p_limit?: number;
           p_search?: string | null;
           p_state?: string | null;
+          p_only_with_matches?: boolean;
         };
         Returns: {
           other_user: string;
@@ -351,7 +352,7 @@ export interface Database {
           avatar_url: string | null;
           city: string | null;
           state: string | null;
-          distance_km: number;
+          distance_km: number | null;
           i_can_give: number;
           i_can_get: number;
           match_score: number;

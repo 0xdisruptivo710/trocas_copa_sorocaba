@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   RADIUS_OPTIONS,
@@ -31,12 +31,38 @@ export function ExploreFilters({ query }: { query: ExploreQuery }) {
 
   return (
     <div className="space-y-3">
+      {/* Tab switcher Matches / Todos */}
+      <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm">
+        <Link
+          href={buildExploreUrl("/explorar", { ...query, mode: "matches" })}
+          className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+            query.mode === "matches"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Sparkles className="size-3.5" aria-hidden />
+          Matches
+        </Link>
+        <Link
+          href={buildExploreUrl("/explorar", { ...query, mode: "todos" })}
+          className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+            query.mode === "todos"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Users className="size-3.5" aria-hidden />
+          Todos
+        </Link>
+      </div>
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar colecionador (nome ou @username)"
+          placeholder="Buscar nome ou @username"
           className="pl-9"
         />
       </div>

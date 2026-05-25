@@ -1,10 +1,13 @@
 export const RADIUS_OPTIONS = [3, 5, 10, 25, 50] as const;
 export type Radius = (typeof RADIUS_OPTIONS)[number];
 
+export type ExploreMode = "matches" | "todos";
+
 export interface ExploreQuery {
   radius: Radius;
   state: string | null; // sempre SP por enquanto; mantido pra compat
   q: string;
+  mode: ExploreMode;
 }
 
 const STATIC_STATE = "SP";
@@ -17,13 +20,17 @@ export function parseExploreQuery(params: URLSearchParams): ExploreQuery {
 
   const q = (params.get("q") ?? "").trim().slice(0, 50);
 
-  return { radius, state: STATIC_STATE, q };
+  const modeRaw = params.get("aba") ?? "matches";
+  const mode: ExploreMode = modeRaw === "todos" ? "todos" : "matches";
+
+  return { radius, state: STATIC_STATE, q, mode };
 }
 
 export function buildExploreUrl(base: string, query: Partial<ExploreQuery>): string {
   const params = new URLSearchParams();
   if (query.radius && query.radius !== 25) params.set("r", String(query.radius));
   if (query.q) params.set("q", query.q);
+  if (query.mode && query.mode !== "matches") params.set("aba", query.mode);
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }

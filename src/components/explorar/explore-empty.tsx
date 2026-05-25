@@ -21,7 +21,13 @@ export function NoLocationState() {
   );
 }
 
-export function NoMatchesState({ hasFilters }: { hasFilters: boolean }) {
+export function NoMatchesState({
+  hasFilters,
+  mode = "matches",
+}: {
+  hasFilters: boolean;
+  mode?: "matches" | "todos";
+}) {
   if (hasFilters) {
     return (
       <Card className="space-y-2 p-6 text-center">
@@ -32,6 +38,28 @@ export function NoMatchesState({ hasFilters }: { hasFilters: boolean }) {
         <p className="text-sm text-muted-foreground">
           Tenta aumentar o raio (até 50km) ou limpar a busca.
         </p>
+      </Card>
+    );
+  }
+
+  if (mode === "todos") {
+    return (
+      <Card className="space-y-3 p-6 text-center">
+        <Users className="mx-auto size-8 text-muted-foreground" />
+        <h2 className="font-display text-lg font-bold">
+          Você é o primeiro da região!
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Convida amigos pra cadastrarem — assim que outra pessoa se inscrever,
+          ela aparece aqui.
+        </p>
+        <Link
+          href="/conta/indicar"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-gradient-to-r from-primary via-primary to-accent/80 px-4 font-display text-sm font-bold text-primary-foreground shadow-sm shadow-primary/30 hover:brightness-105"
+        >
+          <Share2 className="size-3.5" />
+          Convidar amigos
+        </Link>
       </Card>
     );
   }

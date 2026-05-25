@@ -2,7 +2,7 @@ import { parseExploreQuery } from "@/lib/explorar/filters";
 import { findMatches } from "@/lib/explorar/data";
 import { ExploreFilters } from "@/components/explorar/explore-filters";
 import { MatchCard } from "@/components/explorar/match-card";
-import { NoLocationState, NoMatchesState } from "@/components/explorar/explore-empty";
+import { NoMatchesState } from "@/components/explorar/explore-empty";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -17,18 +17,9 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
   );
   const query = parseExploreQuery(sp);
 
-  const result = await findMatches(query);
-
-  if (result.kind === "no_location") {
-    return (
-      <main className="space-y-4 px-6 py-6">
-        <header>
-          <h1 className="text-2xl font-semibold">Explorar</h1>
-        </header>
-        <NoLocationState />
-      </main>
-    );
-  }
+  const result = await findMatches(query, {
+    onlyWithMatches: query.mode === "matches",
+  });
 
   if (result.kind === "not_authenticated") {
     return (
@@ -46,25 +37,33 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
     );
   }
 
-  const hasFilters = query.radius !== 50 || query.state !== null || query.q !== "";
+  const hasFilters = query.radius !== 25 || query.q !== "";
+  const totalLabel =
+    result.matches.length === 1
+      ? query.mode === "matches"
+        ? "match encontrado"
+        : "colecionador na região"
+      : query.mode === "matches"
+        ? "matches encontrados"
+        : "colecionadores na região";
 
   return (
     <main className="space-y-4 px-6 py-6">
       <header>
-        <h1 className="text-2xl font-semibold">Explorar</h1>
+        <h1 className="font-display text-2xl font-extrabold">Explorar</h1>
         <p className="text-sm text-muted-foreground">
           {result.matches.length === 0
-            ? "Sem matches no raio escolhido"
-            : `${result.matches.length} ${
-                result.matches.length === 1 ? "match encontrado" : "matches encontrados"
-              }`}
+            ? query.mode === "matches"
+              ? "Sem matches no raio escolhido"
+              : "Sem colecionadores no raio escolhido"
+            : `${result.matches.length} ${totalLabel}`}
         </p>
       </header>
 
       <ExploreFilters query={query} />
 
       {result.matches.length === 0 ? (
-        <NoMatchesState hasFilters={hasFilters} />
+        <NoMatchesState hasFilters={hasFilters} mode={query.mode} />
       ) : (
         <ul className="space-y-2">
           {result.matches.map((m) => (
