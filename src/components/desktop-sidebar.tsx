@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/brand/logo";
+import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import { logoutAction } from "@/lib/actions/auth";
+import type { NotificationItem } from "@/lib/notifications/data";
 
 const NAV_MAIN = [
   { href: "/home", label: "Início", icon: Home },
@@ -35,9 +37,19 @@ interface Props {
   fullName: string;
   username: string;
   avatarUrl: string | null;
+  userId: string;
+  unreadNotifications: number;
+  initialNotifications: NotificationItem[];
 }
 
-export function DesktopSidebar({ fullName, username, avatarUrl }: Props) {
+export function DesktopSidebar({
+  fullName,
+  username,
+  avatarUrl,
+  userId,
+  unreadNotifications,
+  initialNotifications,
+}: Props) {
   const path = usePathname();
 
   const initials = fullName
@@ -50,13 +62,21 @@ export function DesktopSidebar({ fullName, username, avatarUrl }: Props) {
   return (
     <aside className="hidden md:flex md:fixed md:inset-y-0 md:left-0 md:w-60 md:flex-col md:border-r md:border-border/60 md:bg-muted/30">
       <div className="flex h-full flex-col px-4 py-5">
-        <Link href="/home" className="mb-6 flex items-center gap-2">
-          <Logo variant="mark" size={32} />
-          <span className="font-display text-sm font-extrabold leading-tight">
-            trocas copa
-            <span className="block text-primary">SOROCABA</span>
-          </span>
-        </Link>
+        <div className="mb-6 flex items-center justify-between gap-2">
+          <Link href="/home" className="flex items-center gap-2">
+            <Logo variant="mark" size={32} />
+            <span className="font-display text-sm font-extrabold leading-tight">
+              trocas copa
+              <span className="block text-primary">SOROCABA</span>
+            </span>
+          </Link>
+          <NotificationsBell
+            userId={userId}
+            initialUnreadCount={unreadNotifications}
+            initialItems={initialNotifications}
+            variant="sidebar"
+          />
+        </div>
 
         <div className="mb-2">
           <p className="px-2 font-display text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">

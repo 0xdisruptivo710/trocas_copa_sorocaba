@@ -316,6 +316,40 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind:
+            | "message"
+            | "proposal_new"
+            | "proposal_reply"
+            | "trade_completed";
+          chat_id: string | null;
+          actor_id: string | null;
+          payload: Json;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind:
+            | "message"
+            | "proposal_new"
+            | "proposal_reply"
+            | "trade_completed";
+          chat_id?: string | null;
+          actor_id?: string | null;
+          payload?: Json;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{
+          read_at: string | null;
+        }>;
+        Relationships: [];
+      };
       trocas_reports: {
         Row: {
           id: string;
@@ -494,6 +528,14 @@ export interface Database {
       trocas_my_approx_latlng: {
         Args: Record<string, never>;
         Returns: { lat: number | null; lng: number | null }[];
+      };
+      trocas_mark_notification_read: {
+        Args: { p_id: string };
+        Returns: null;
+      };
+      trocas_mark_all_notifications_read: {
+        Args: Record<string, never>;
+        Returns: number;
       };
     };
     Enums: Record<string, never>;
