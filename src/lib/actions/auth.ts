@@ -2,8 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
+
+const PARTNER_COOKIE = "tc_partner";
+const PARTNER_SLUG_RE = /^[a-z0-9_-]{2,30}$/;
 
 async function consumeReferral(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -15,6 +19,25 @@ async function consumeReferral(
       p_referrer_username: via,
       p_source: "signup_link",
     });
+  } catch {
+    // best-effort — não bloqueia signup
+  }
+}
+
+async function consumePartnerAttribution(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  const store = await cookies();
+  const slug = store.get(PARTNER_COOKIE)?.value?.trim().toLowerCase();
+  if (!slug || !PARTNER_SLUG_RE.test(slug)) return;
+  try {
+    const { data } = await supabase.rpc("trocas_attribute_signup", {
+      p_slug: slug,
+      p_source: "cookie",
+    });
+    // Só limpa o cookie se a atribuição vingou — senão tentamos de novo na
+    // próxima oportunidade (ex: confirmação de email tardia).
+    if (data === true) store.delete(PARTNER_COOKIE);
   } catch {
     // best-effort — não bloqueia signup
   }
@@ -44,6 +67,9 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
   // Se veio com cupom de indicação no form (?via=USER), registra a referência.
   const via = String(formData.get("referral_via") ?? "").trim().toLowerCase();
   await consumeReferral(supabase, via);
+
+  // Atribuição de partner (cookie tc_partner setado pelo middleware).
+  await consumePartnerAttribution(supabase);
 
   redirect("/onboarding/perfil");
 }

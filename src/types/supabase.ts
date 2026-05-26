@@ -350,6 +350,71 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_partners: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          instagram: string | null;
+          email: string | null;
+          pix_key: string | null;
+          commission_cents: number;
+          dashboard_token: string;
+          dashboard_token_expires_at: string;
+          status: "active" | "paused" | "terminated";
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          instagram?: string | null;
+          email?: string | null;
+          pix_key?: string | null;
+          commission_cents?: number;
+          dashboard_token?: string;
+          dashboard_token_expires_at?: string;
+          status?: "active" | "paused" | "terminated";
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<{
+          slug: string;
+          name: string;
+          instagram: string | null;
+          email: string | null;
+          pix_key: string | null;
+          commission_cents: number;
+          dashboard_token: string;
+          dashboard_token_expires_at: string;
+          status: "active" | "paused" | "terminated";
+          notes: string | null;
+        }>;
+        Relationships: [];
+      };
+      trocas_partner_attributions: {
+        Row: {
+          user_id: string;
+          partner_id: string;
+          source: "cookie" | "coupon";
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          partner_id: string;
+          source: "cookie" | "coupon";
+          created_at?: string;
+        };
+        Update: Partial<{
+          partner_id: string;
+          source: "cookie" | "coupon";
+          created_at: string;
+        }>;
+        Relationships: [];
+      };
       trocas_reports: {
         Row: {
           id: string;
@@ -440,6 +505,16 @@ export interface Database {
           avatar_url: string | null;
           city: string | null;
           state: string | null;
+        };
+        Relationships: [];
+      };
+      trocas_partner_public: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          instagram: string | null;
+          status: "active" | "paused" | "terminated";
         };
         Relationships: [];
       };
@@ -536,6 +611,21 @@ export interface Database {
       trocas_mark_all_notifications_read: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      trocas_attribute_signup: {
+        Args: { p_slug: string; p_source?: "cookie" | "coupon" };
+        Returns: boolean;
+      };
+      trocas_admin_create_partner: {
+        Args: {
+          p_slug: string;
+          p_name: string;
+          p_instagram?: string | null;
+          p_email?: string | null;
+          p_pix_key?: string | null;
+          p_commission_cents?: number;
+        };
+        Returns: string;
       };
     };
     Enums: Record<string, never>;

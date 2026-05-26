@@ -4,9 +4,14 @@ import type { Database } from "@/types/supabase";
 import { env } from "@/lib/env";
 
 const AUTH_PATHS = ["/login", "/cadastro", "/esqueci-senha", "/callback"];
-const PUBLIC_PATH_PREFIXES = ["/u/"];
+const PUBLIC_PATH_PREFIXES = ["/u/", "/parceiro/"];
 const PUBLIC_PATHS_EXACT = ["/"];
 const PUBLIC_FILE_PREFIXES = ["/_next", "/icon", "/manifest", "/api/abacatepay", "/apple-icon", "/opengraph-image"];
+
+// Cookie de atribuição de partner (last-touch, janela 30d).
+const PARTNER_COOKIE = "tc_partner";
+const PARTNER_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
+const PARTNER_SLUG_RE = /^[a-z0-9_-]{2,30}$/;
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -34,6 +39,20 @@ export async function updateSession(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   const path = url.pathname;
+
+  // Atribuição de partner via ?p=slug — seta cookie last-touch por 30d.
+  // Sem validação de existência aqui (custo de query a cada request);
+  // signupAction valida na hora de gravar a atribuição.
+  const partnerParam = url.searchParams.get("p")?.trim().toLowerCase();
+  if (partnerParam && PARTNER_SLUG_RE.test(partnerParam)) {
+    response.cookies.set(PARTNER_COOKIE, partnerParam, {
+      maxAge: PARTNER_COOKIE_MAX_AGE,
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+  }
 
   const isAuthRoute = AUTH_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
   const isPublicPath =
