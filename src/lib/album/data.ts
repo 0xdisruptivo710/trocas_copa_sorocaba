@@ -65,7 +65,16 @@ export async function getAlbumPage(userId: string, query: AlbumQuery): Promise<A
     .order("display_order", { foreignTable: "trocas_teams", ascending: true })
     .order("number", { ascending: true });
 
-  // Group filter
+  // Category filter (top-level) — restringe team_kind.
+  if (query.category === "fifa") {
+    catalogQuery = catalogQuery.eq("trocas_teams.kind", "fwc");
+  } else if (query.category === "paises") {
+    catalogQuery = catalogQuery.eq("trocas_teams.kind", "team");
+  } else if (query.category === "especiais") {
+    catalogQuery = catalogQuery.eq("trocas_teams.kind", "special");
+  }
+
+  // Group filter — só faz sentido quando categoria é Países (ou Todas).
   if (query.group === "FWC") {
     catalogQuery = catalogQuery.eq("team_code", "FWC");
   } else if (query.group === "Coca-Cola") {

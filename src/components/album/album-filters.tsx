@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, Globe2, Trophy, Sparkles, LayoutGrid } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { GROUP_LABELS } from "@/lib/album/teams";
-import { buildAlbumUrl, type AlbumQuery, type StatusFilter } from "@/lib/album/filters";
+import {
+  buildAlbumUrl,
+  type AlbumQuery,
+  type StatusFilter,
+  type CategoryFilter,
+} from "@/lib/album/filters";
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "todas", label: "Todas" },
@@ -14,6 +19,17 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "tenho", label: "Tenho" },
   { value: "repetidas", label: "Repetidas" },
   { value: "prioridade", label: "Prioridade" },
+];
+
+const CATEGORY_OPTIONS: {
+  value: CategoryFilter;
+  label: string;
+  icon: typeof LayoutGrid;
+}[] = [
+  { value: "todas", label: "Tudo", icon: LayoutGrid },
+  { value: "fifa", label: "FIFA", icon: Trophy },
+  { value: "paises", label: "Países", icon: Globe2 },
+  { value: "especiais", label: "Especiais", icon: Sparkles },
 ];
 
 export function AlbumFilters({ query }: { query: AlbumQuery }) {
@@ -34,8 +50,37 @@ export function AlbumFilters({ query }: { query: AlbumQuery }) {
   const baseHref = (override: Partial<AlbumQuery>) =>
     buildAlbumUrl("/album", { ...query, ...override, page: 1 });
 
+  // Quando o user troca de categoria, reseta o filtro de grupo
+  // (que só faz sentido em Países / Todas).
+  const categoryHref = (cat: CategoryFilter) =>
+    buildAlbumUrl("/album", { ...query, category: cat, group: "all", page: 1 });
+
+  const showGroupRow = query.category === "todas" || query.category === "paises";
+
   return (
     <div className="space-y-3">
+      {/* Categorias top-level */}
+      <div className="flex flex-wrap gap-2">
+        {CATEGORY_OPTIONS.map((opt) => {
+          const active = query.category === opt.value;
+          const Icon = opt.icon;
+          return (
+            <Link
+              key={opt.value}
+              href={categoryHref(opt.value)}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 font-display text-xs font-bold uppercase tracking-wide transition-all ${
+                active
+                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              <Icon className="size-3.5" aria-hidden />
+              {opt.label}
+            </Link>
+          );
+        })}
+      </div>
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -67,36 +112,38 @@ export function AlbumFilters({ query }: { query: AlbumQuery }) {
         </div>
       </div>
 
-      <div className="-mx-6 overflow-x-auto px-6">
-        <div className="flex w-max gap-2">
-          <Link
-            href={baseHref({ group: "all" })}
-            className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${
-              query.group === "all"
-                ? "border-foreground bg-foreground text-background"
-                : "border-border bg-card text-muted-foreground hover:bg-accent"
-            }`}
-          >
-            Todas
-          </Link>
-          {GROUP_LABELS.map((g) => {
-            const active = query.group === g;
-            return (
-              <Link
-                key={g}
-                href={baseHref({ group: g })}
-                className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${
-                  active
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border bg-card text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                {g}
-              </Link>
-            );
-          })}
+      {showGroupRow && (
+        <div className="-mx-6 overflow-x-auto px-6">
+          <div className="flex w-max gap-2">
+            <Link
+              href={baseHref({ group: "all" })}
+              className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${
+                query.group === "all"
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              Todas
+            </Link>
+            {GROUP_LABELS.filter((g) => g !== "FWC" && g !== "Coca-Cola").map((g) => {
+              const active = query.group === g;
+              return (
+                <Link
+                  key={g}
+                  href={baseHref({ group: g })}
+                  className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${
+                    active
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-card text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {g}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
