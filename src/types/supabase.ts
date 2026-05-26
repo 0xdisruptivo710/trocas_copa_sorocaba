@@ -430,6 +430,8 @@ export interface Database {
           i_can_give: number;
           i_can_get: number;
           match_score: number;
+          lat_approx: number | null;
+          lng_approx: number | null;
         }[];
       };
       trocas_open_chat: {
@@ -488,6 +490,10 @@ export interface Database {
       trocas_blocked_pair: {
         Args: { p_a: string; p_b: string };
         Returns: boolean;
+      };
+      trocas_my_approx_latlng: {
+        Args: Record<string, never>;
+        Returns: { lat: number | null; lng: number | null }[];
       };
     };
     Enums: Record<string, never>;

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
-import { Search, Sparkles, Users } from "lucide-react";
+import { Search, Sparkles, Users, List, Map as MapIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   RADIUS_OPTIONS,
@@ -31,30 +31,60 @@ export function ExploreFilters({ query }: { query: ExploreQuery }) {
 
   return (
     <div className="space-y-3">
-      {/* Tab switcher Matches / Todos */}
-      <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm">
-        <Link
-          href={buildExploreUrl("/explorar", { ...query, mode: "matches" })}
-          className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
-            query.mode === "matches"
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Sparkles className="size-3.5" aria-hidden />
-          Matches
-        </Link>
-        <Link
-          href={buildExploreUrl("/explorar", { ...query, mode: "todos" })}
-          className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
-            query.mode === "todos"
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Users className="size-3.5" aria-hidden />
-          Todos
-        </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Tab switcher Matches / Todos */}
+        <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm">
+          <Link
+            href={buildExploreUrl("/explorar", { ...query, mode: "matches" })}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+              query.mode === "matches"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Sparkles className="size-3.5" aria-hidden />
+            Matches
+          </Link>
+          <Link
+            href={buildExploreUrl("/explorar", { ...query, mode: "todos" })}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+              query.mode === "todos"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Users className="size-3.5" aria-hidden />
+            Todos
+          </Link>
+        </div>
+
+        {/* Toggle Lista / Mapa */}
+        <div className="inline-flex rounded-lg border bg-card p-1 shadow-sm">
+          <Link
+            href={buildExploreUrl("/explorar", { ...query, view: "lista" })}
+            aria-label="Ver como lista"
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+              query.view === "lista"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <List className="size-3.5" aria-hidden />
+            Lista
+          </Link>
+          <Link
+            href={buildExploreUrl("/explorar", { ...query, view: "mapa" })}
+            aria-label="Ver no mapa"
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-display text-xs font-bold transition-all ${
+              query.view === "mapa"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MapIcon className="size-3.5" aria-hidden />
+            Mapa
+          </Link>
+        </div>
       </div>
 
       <div className="relative">

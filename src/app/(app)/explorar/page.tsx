@@ -3,9 +3,25 @@ import { findMatches } from "@/lib/explorar/data";
 import { ExploreFilters } from "@/components/explorar/explore-filters";
 import { MatchCard } from "@/components/explorar/match-card";
 import { NoMatchesState } from "@/components/explorar/explore-empty";
+import { ExploreMapLoader } from "@/components/explorar/explore-map-loader";
+import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function getMyApproxLatLng(): Promise<[number, number] | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase.rpc("trocas_my_approx_latlng");
+  if (error || !data || data.length === 0) return null;
+  const row = data[0];
+  if (row.lat === null || row.lng === null) return null;
+  return [row.lat, row.lng];
 }
 
 export default async function ExplorarPage({ searchParams }: PageProps) {
@@ -17,9 +33,10 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
   );
   const query = parseExploreQuery(sp);
 
-  const result = await findMatches(query, {
-    onlyWithMatches: query.mode === "matches",
-  });
+  const [result, myLatLng] = await Promise.all([
+    findMatches(query, { onlyWithMatches: query.mode === "matches" }),
+    query.view === "mapa" ? getMyApproxLatLng() : Promise.resolve(null),
+  ]);
 
   if (result.kind === "not_authenticated") {
     return (
@@ -68,7 +85,13 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
 
       <ExploreFilters query={query} />
 
-      {result.matches.length === 0 ? (
+      {query.view === "mapa" ? (
+        <ExploreMapLoader
+          matches={result.matches}
+          myLatLng={myLatLng}
+          radiusKm={query.radius}
+        />
+      ) : result.matches.length === 0 ? (
         <NoMatchesState hasFilters={hasFilters} mode={query.mode} />
       ) : (
         <ul className="grid gap-2 md:grid-cols-2">

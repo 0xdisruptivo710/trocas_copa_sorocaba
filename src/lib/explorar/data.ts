@@ -12,6 +12,10 @@ export interface Match {
   i_can_give: number;
   i_can_get: number;
   match_score: number;
+  /** Lat snap a ~500m de grade (privacidade). Null se user sem localização. */
+  lat_approx: number | null;
+  /** Lng snap a ~500m de grade (privacidade). Null se user sem localização. */
+  lng_approx: number | null;
 }
 
 export type FindMatchesResult =
