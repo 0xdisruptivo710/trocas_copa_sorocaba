@@ -415,6 +415,64 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_partner_conversions: {
+        Row: {
+          id: string;
+          partner_id: string;
+          billing_id: string;
+          user_id: string;
+          amount_cents: number;
+          commission_cents: number;
+          status: "pending" | "approved" | "paid" | "voided";
+          payout_id: string | null;
+          created_at: string;
+          paid_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          partner_id: string;
+          billing_id: string;
+          user_id: string;
+          amount_cents: number;
+          commission_cents: number;
+          status?: "pending" | "approved" | "paid" | "voided";
+          payout_id?: string | null;
+          created_at?: string;
+          paid_at?: string | null;
+        };
+        Update: Partial<{
+          status: "pending" | "approved" | "paid" | "voided";
+          payout_id: string | null;
+          paid_at: string | null;
+        }>;
+        Relationships: [];
+      };
+      trocas_partner_payouts: {
+        Row: {
+          id: string;
+          partner_id: string;
+          amount_cents: number;
+          reference_month: string | null;
+          pix_txid: string | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          partner_id: string;
+          amount_cents: number;
+          reference_month?: string | null;
+          pix_txid?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{
+          reference_month: string | null;
+          pix_txid: string | null;
+          notes: string | null;
+        }>;
+        Relationships: [];
+      };
       trocas_reports: {
         Row: {
           id: string;
@@ -624,6 +682,16 @@ export interface Database {
           p_email?: string | null;
           p_pix_key?: string | null;
           p_commission_cents?: number;
+        };
+        Returns: string;
+      };
+      trocas_admin_record_payout: {
+        Args: {
+          p_partner_id: string;
+          p_amount_cents: number;
+          p_reference_month?: string | null;
+          p_pix_txid?: string | null;
+          p_notes?: string | null;
         };
         Returns: string;
       };

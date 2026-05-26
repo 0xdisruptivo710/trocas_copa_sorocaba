@@ -41,26 +41,70 @@ export async function createPremiumChargeAction(
   if (!profile) return { ok: false, error: "Perfil não encontrado." };
   if (profile.is_premium) return { ok: false, error: "Você já é Premium." };
 
-  // Resolve cupom — referralCode = username de outro usuário que indicou.
+  // Resolve cupom. Pode ser:
+  //   1. Username de outro user (referral interno) → R$5 desconto + crédito R$5 pro user
+  //   2. Slug de partner (influencer) → R$5 desconto + comissão pro partner
+  // Tenta partner primeiro (slug pode ter "-", username não); se não casar,
+  // tenta como username.
   const trimmedCode = (referralCode ?? "").trim().toLowerCase();
   let resolvedReferral: string | null = null;
+  let resolvedPartnerSlug: string | null = null;
   let amount = PREMIUM_PRICE_CENTS;
 
   if (trimmedCode.length > 0) {
-    if (!/^[a-z0-9_]{3,30}$/.test(trimmedCode)) {
+    const isPartnerShape = /^[a-z0-9_-]{2,30}$/.test(trimmedCode);
+    const isUsernameShape = /^[a-z0-9_]{3,30}$/.test(trimmedCode);
+
+    if (!isPartnerShape && !isUsernameShape) {
       return { ok: false, error: "Cupom inválido." };
     }
     if (trimmedCode === profile.username) {
       return { ok: false, error: "Não dá pra usar seu próprio cupom." };
     }
-    const { data: referrer } = await supabase
-      .from("trocas_public_profiles")
-      .select("id, username")
-      .eq("username", trimmedCode)
-      .maybeSingle();
-    if (!referrer) return { ok: false, error: "Cupom não encontrado." };
-    resolvedReferral = referrer.username;
-    amount = PREMIUM_PRICE_CENTS - PREMIUM_DISCOUNT_CENTS;
+
+    // 1) Tenta partner
+    if (isPartnerShape) {
+      const { data: partner } = await supabase
+        .from("trocas_partner_public")
+        .select("slug")
+        .eq("slug", trimmedCode)
+        .maybeSingle();
+      if (partner) {
+        resolvedPartnerSlug = partner.slug;
+        amount = PREMIUM_PRICE_CENTS - PREMIUM_DISCOUNT_CENTS;
+      }
+    }
+
+    // 2) Se não bateu partner, tenta referral interno
+    if (!resolvedPartnerSlug && isUsernameShape) {
+      const { data: referrer } = await supabase
+        .from("trocas_public_profiles")
+        .select("id, username")
+        .eq("username", trimmedCode)
+        .maybeSingle();
+      if (referrer) {
+        resolvedReferral = referrer.username;
+        amount = PREMIUM_PRICE_CENTS - PREMIUM_DISCOUNT_CENTS;
+      }
+    }
+
+    if (!resolvedReferral && !resolvedPartnerSlug) {
+      return { ok: false, error: "Cupom não encontrado." };
+    }
+  }
+
+  // Atribui ao partner via 'coupon' (sobrescreve cookie se houver).
+  // Last-touch + intenção explícita: digitar o cupom é mais forte que clicar
+  // num link semanas atrás.
+  if (resolvedPartnerSlug) {
+    try {
+      await supabase.rpc("trocas_attribute_signup", {
+        p_slug: resolvedPartnerSlug,
+        p_source: "coupon",
+      });
+    } catch {
+      // best-effort — atribuição falhada não bloqueia o pagamento
+    }
   }
 
   let charge;
@@ -77,6 +121,7 @@ export async function createPremiumChargeAction(
         user_id: user.id,
         product: "premium",
         referral_code: resolvedReferral ?? "",
+        partner_slug: resolvedPartnerSlug ?? "",
       },
     });
   } catch (e) {
