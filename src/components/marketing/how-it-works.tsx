@@ -1,37 +1,43 @@
-import { BookOpen, Users, MessageCircle } from "lucide-react";
+import { BookOpen, Users, MessageCircle, Clock } from "lucide-react";
 
 const STEPS = [
   {
-    n: "1",
+    n: "01",
     icon: BookOpen,
-    title: "Cadastra seu álbum",
-    body: "Marca cada figurinha como Tenho, Repetida ou Falta. São 994 cromos da Panini Copa 2026.",
+    title: "Marque",
+    body: "Crie sua conta e marca o que você já tem, o que falta e o que sobra repetida no álbum. São 994 cromos da Panini Copa 2026.",
   },
   {
-    n: "2",
+    n: "02",
     icon: Users,
-    title: "Encontra quem tá perto",
-    body: "A gente cruza sua coleção com colecionadores da região (Sorocaba e cidades vizinhas, até 50km) e ordena por melhor match.",
+    title: "Descubra",
+    body: "A gente cruza sua coleção com a de outros colecionadores de Sorocaba e região (até 50km) — ordenados por melhor match.",
   },
   {
-    n: "3",
+    n: "03",
     icon: MessageCircle,
-    title: "Fecha a troca no chat",
-    body: "Conversa direto, propõe formal, marca como entregue. Álbuns dos dois atualizam automaticamente.",
+    title: "Troca",
+    body: "Manda oferta, combina ponto de encontro no chat (sem expor telefone), troca pessoalmente. Álbuns dos dois atualizam automaticamente.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="bg-muted/30 py-20">
+    <section className="py-20">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Como funciona
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Três passos do cadastro à primeira troca.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="font-display text-xs font-semibold uppercase tracking-wider text-primary">
+              Como funciona
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Três jogadas pra colar a Copa
+            </h2>
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-display font-bold text-muted-foreground">
+            <Clock className="size-3.5 text-primary" aria-hidden />
+            30 segundos pra começar
+          </div>
         </div>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-3">
@@ -40,16 +46,29 @@ export function HowItWorks() {
             return (
               <div
                 key={s.n}
-                className="group relative rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-cromo)] transition-all hover:-translate-y-1 hover:border-primary/40"
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-cromo)] transition-all hover:-translate-y-1 hover:border-primary/40"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent/80 font-display text-lg font-extrabold text-primary-foreground shadow-sm shadow-primary/30">
-                    {s.n}
-                  </div>
-                  <Icon className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
+                {/* Big number bg decorativo */}
+                <div className="pointer-events-none absolute -right-2 -top-4 select-none font-display text-7xl font-extrabold leading-none text-primary/5">
+                  {s.n}
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.body}</p>
+
+                <div className="relative">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-display text-[10px] font-bold text-primary">
+                      Nº {s.n}
+                    </span>
+                    <Icon
+                      className="size-5 text-muted-foreground transition-colors group-hover:text-primary"
+                      aria-hidden
+                    />
+                  </div>
+                  <h3 className="mt-4 font-display text-2xl font-extrabold">{s.title}</h3>
+                  <div className="mt-2 h-1 w-12 rounded-full bg-gradient-to-r from-primary to-accent" />
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {s.body}
+                  </p>
+                </div>
               </div>
             );
           })}
