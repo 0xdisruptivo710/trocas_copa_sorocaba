@@ -695,6 +695,10 @@ export interface Database {
         };
         Returns: string;
       };
+      trocas_partner_dashboard: {
+        Args: { p_slug: string; p_token: string };
+        Returns: Json | null;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
