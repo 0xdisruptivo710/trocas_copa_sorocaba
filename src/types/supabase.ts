@@ -298,6 +298,67 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      trocas_blocks: {
+        Row: {
+          blocker_id: string;
+          blocked_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocker_id: string;
+          blocked_id: string;
+          created_at?: string;
+        };
+        Update: Partial<{
+          blocker_id: string;
+          blocked_id: string;
+          created_at: string;
+        }>;
+        Relationships: [];
+      };
+      trocas_reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          reported_id: string;
+          reason:
+            | "spam"
+            | "assedio"
+            | "fraude_troca"
+            | "conteudo_improprio"
+            | "perfil_falso"
+            | "menor_de_idade"
+            | "outro";
+          details: string | null;
+          context_chat_id: string | null;
+          status: "open" | "reviewing" | "resolved" | "dismissed";
+          created_at: string;
+          resolved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          reporter_id: string;
+          reported_id: string;
+          reason:
+            | "spam"
+            | "assedio"
+            | "fraude_troca"
+            | "conteudo_improprio"
+            | "perfil_falso"
+            | "menor_de_idade"
+            | "outro";
+          details?: string | null;
+          context_chat_id?: string | null;
+          status?: "open" | "reviewing" | "resolved" | "dismissed";
+          created_at?: string;
+          resolved_at?: string | null;
+        };
+        Update: Partial<{
+          status: "open" | "reviewing" | "resolved" | "dismissed";
+          resolved_at: string | null;
+        }>;
+        Relationships: [];
+      };
     };
     Views: {
       trocas_referral_stats: {
@@ -332,6 +393,19 @@ export interface Database {
           state: string | null;
           is_premium: boolean;
           created_at: string;
+        };
+        Relationships: [];
+      };
+      trocas_my_blocks: {
+        Row: {
+          blocker_id: string;
+          blocked_id: string;
+          created_at: string;
+          username: string;
+          full_name: string;
+          avatar_url: string | null;
+          city: string | null;
+          state: string | null;
         };
         Relationships: [];
       };
@@ -386,6 +460,34 @@ export interface Database {
       trocas_check_referral_effective: {
         Args: Record<string, never>;
         Returns: null;
+      };
+      trocas_block_user: {
+        Args: { p_other: string };
+        Returns: null;
+      };
+      trocas_unblock_user: {
+        Args: { p_other: string };
+        Returns: null;
+      };
+      trocas_report_user: {
+        Args: {
+          p_other: string;
+          p_reason:
+            | "spam"
+            | "assedio"
+            | "fraude_troca"
+            | "conteudo_improprio"
+            | "perfil_falso"
+            | "menor_de_idade"
+            | "outro";
+          p_details?: string | null;
+          p_chat_id?: string | null;
+        };
+        Returns: string;
+      };
+      trocas_blocked_pair: {
+        Args: { p_a: string; p_b: string };
+        Returns: boolean;
       };
     };
     Enums: Record<string, never>;

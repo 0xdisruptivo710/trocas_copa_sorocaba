@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getChatThread } from "@/lib/chat/data";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { MessageComposer } from "@/components/chat/message-composer";
+import { UserActionsMenu } from "@/components/perfil/user-actions-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface PageProps {
@@ -56,6 +57,12 @@ export default async function ChatThreadPage({ params }: PageProps) {
             <p className="text-xs text-muted-foreground">@{thread.other_username}</p>
           </div>
         </Link>
+        <UserActionsMenu
+          otherUserId={thread.other_id}
+          otherName={thread.other_username}
+          chatId={thread.chat_id}
+          redirectAfterBlock="/chat"
+        />
       </header>
 
       <ChatThread

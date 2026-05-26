@@ -6,7 +6,7 @@ import { LocationCapture } from "@/components/location-capture";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/card";
-import { Crown, Gift } from "lucide-react";
+import { Crown, Gift, ShieldOff } from "lucide-react";
 
 export default async function ContaPage() {
   const supabase = await createClient();
@@ -99,6 +99,19 @@ export default async function ContaPage() {
         )}
         <LocationCapture />
       </Card>
+
+      <Link
+        href="/conta/privacidade"
+        className="flex items-center justify-between rounded-md border bg-card px-4 py-3 text-sm font-medium hover:bg-muted"
+      >
+        <span className="flex items-center gap-2">
+          <ShieldOff className="size-4 text-muted-foreground" aria-hidden />
+          Privacidade &amp; bloqueados
+        </span>
+        <span aria-hidden className="text-muted-foreground">
+          &rsaquo;
+        </span>
+      </Link>
 
       <form action={logoutAction}>
         <Button type="submit" variant="outline" className="w-full">

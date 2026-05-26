@@ -60,18 +60,31 @@ export interface TradeRecord {
 export async function listChats(userId: string): Promise<ChatListItem[]> {
   const supabase = await createClient();
 
-  const { data: chats, error } = await supabase
-    .from("trocas_chats")
-    .select("id, user_a, user_b, last_message_at")
-    .or(`user_a.eq.${userId},user_b.eq.${userId}`)
-    .order("last_message_at", { ascending: false })
-    .limit(50);
+  const [chatsRes, blocksRes] = await Promise.all([
+    supabase
+      .from("trocas_chats")
+      .select("id, user_a, user_b, last_message_at")
+      .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+      .order("last_message_at", { ascending: false })
+      .limit(50),
+    // Quem EU bloqueei (RLS já restringe; quem me bloqueou cai no policy do RPC,
+    // mas pra esconder da lista usamos só os meus blocks — bloqueios mútuos são
+    // tratados na exibição do chat).
+    supabase.from("trocas_blocks").select("blocked_id").eq("blocker_id", userId),
+  ]);
 
-  if (error) throw error;
-  const chatRows = chats ?? [];
+  if (chatsRes.error) throw chatsRes.error;
+  const chatRows = chatsRes.data ?? [];
   if (chatRows.length === 0) return [];
 
-  const otherIds = chatRows.map((c) => (c.user_a === userId ? c.user_b : c.user_a));
+  const blockedIds = new Set((blocksRes.data ?? []).map((b) => b.blocked_id));
+  const filteredChats = chatRows.filter((c) => {
+    const otherId = c.user_a === userId ? c.user_b : c.user_a;
+    return !blockedIds.has(otherId);
+  });
+  if (filteredChats.length === 0) return [];
+
+  const otherIds = filteredChats.map((c) => (c.user_a === userId ? c.user_b : c.user_a));
   const { data: profiles, error: pErr } = await supabase
     .from("trocas_public_profiles")
     .select("id, username, full_name, avatar_url")
@@ -80,7 +93,7 @@ export async function listChats(userId: string): Promise<ChatListItem[]> {
 
   const profMap = new Map((profiles ?? []).map((p) => [p.id, p] as const));
 
-  const chatIds = chatRows.map((c) => c.id);
+  const chatIds = filteredChats.map((c) => c.id);
   const { data: allMsgs, error: mErr } = await supabase
     .from("trocas_messages")
     .select("chat_id, sender_id, body, created_at, read_at")
@@ -92,7 +105,7 @@ export async function listChats(userId: string): Promise<ChatListItem[]> {
     string,
     { last: { body: string; sender_id: string; created_at: string } | null; unread: number }
   >();
-  for (const c of chatRows) byChat.set(c.id, { last: null, unread: 0 });
+  for (const c of filteredChats) byChat.set(c.id, { last: null, unread: 0 });
   for (const m of allMsgs ?? []) {
     const entry = byChat.get(m.chat_id);
     if (!entry) continue;
@@ -104,7 +117,7 @@ export async function listChats(userId: string): Promise<ChatListItem[]> {
     }
   }
 
-  return chatRows.map((c) => {
+  return filteredChats.map((c) => {
     const otherId = c.user_a === userId ? c.user_b : c.user_a;
     const prof = profMap.get(otherId);
     const agg = byChat.get(c.id);
@@ -138,6 +151,17 @@ export async function getChatThread(
   if (chat.user_a !== userId && chat.user_b !== userId) return null;
 
   const otherId = chat.user_a === userId ? chat.user_b : chat.user_a;
+
+  // Bloqueio em qualquer direção esconde o thread (mensagens permanecem
+  // armazenadas mas o chat fica inacessível até desbloquear).
+  const { data: blockRow } = await supabase
+    .from("trocas_blocks")
+    .select("blocker_id")
+    .or(
+      `and(blocker_id.eq.${userId},blocked_id.eq.${otherId}),and(blocker_id.eq.${otherId},blocked_id.eq.${userId})`,
+    )
+    .maybeSingle();
+  if (blockRow) return null;
 
   const [profileRes, messagesRes] = await Promise.all([
     supabase

@@ -9,6 +9,7 @@ import {
 import { ProfileHeader } from "@/components/perfil/profile-header";
 import { TradePreview } from "@/components/perfil/trade-preview";
 import { ConversarButton } from "@/components/perfil/conversar-button";
+import { UserActionsMenu } from "@/components/perfil/user-actions-menu";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, UserPlus } from "lucide-react";
 
@@ -35,13 +36,22 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   return (
     <main className="space-y-6 px-6 py-6">
-      <Link
-        href={user ? "/explorar" : "/"}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        {user ? "Voltar" : "TrocasCopa"}
-      </Link>
+      <div className="flex items-center justify-between gap-2">
+        <Link
+          href={user ? "/explorar" : "/"}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="size-4" aria-hidden />
+          {user ? "Voltar" : "TrocasCopa"}
+        </Link>
+        {user && (
+          <UserActionsMenu
+            otherUserId={profile.id}
+            otherName={profile.username}
+            redirectAfterBlock="/explorar"
+          />
+        )}
+      </div>
 
       <ProfileHeader
         fullName={profile.full_name}
