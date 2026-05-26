@@ -27,8 +27,15 @@ export default async function ContaPage() {
     .toUpperCase();
 
   return (
-    <main className="px-6 py-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Conta</h1>
+    <main className="space-y-6 px-6 py-6 md:px-10 md:py-10">
+      <header>
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Perfil & ajustes
+        </p>
+        <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight md:text-6xl">
+          Sua Conta
+        </h1>
+      </header>
 
       <Card className="p-6 space-y-4">
         <AvatarUpload avatarUrl={profile?.avatar_url ?? null} initials={initials} />

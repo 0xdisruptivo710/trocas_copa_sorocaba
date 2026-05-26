@@ -48,15 +48,21 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
         : "colecionadores na região";
 
   return (
-    <main className="space-y-4 px-6 py-6">
+    <main className="space-y-6 px-6 py-6 md:px-10 md:py-10">
       <header>
-        <h1 className="font-display text-2xl font-extrabold">Explorar</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Trocas no mapa · {result.matches.length}{" "}
+          {result.matches.length === 1 ? "pessoa" : "pessoas"}
+        </p>
+        <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight md:text-6xl">
+          Mapa de Trocas
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {result.matches.length === 0
             ? query.mode === "matches"
-              ? "Sem matches no raio escolhido"
-              : "Sem colecionadores no raio escolhido"
-            : `${result.matches.length} ${totalLabel}`}
+              ? "Sem matches no raio escolhido. Marca cromos no álbum pra começar a aparecer."
+              : "Ainda sem colecionadores no raio. Aumenta o raio ou convida amigos."
+            : `${result.matches.length} ${totalLabel} — aproximada por privacidade. Combinem o ponto exato no chat.`}
         </p>
       </header>
 
@@ -65,7 +71,7 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
       {result.matches.length === 0 ? (
         <NoMatchesState hasFilters={hasFilters} mode={query.mode} />
       ) : (
-        <ul className="space-y-2">
+        <ul className="grid gap-2 md:grid-cols-2">
           {result.matches.map((m) => (
             <li key={m.other_user}>
               <MatchCard match={m} />

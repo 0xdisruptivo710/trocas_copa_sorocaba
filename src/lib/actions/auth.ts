@@ -54,10 +54,26 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "E-mail ou senha incorretos." };
+  if (error) {
+    // Distinguir email não confirmado (rest tem code 'email_not_confirmed')
+    // de credenciais inválidas (mensagem genérica por segurança).
+    const code = error.code ?? "";
+    const msg = (error.message ?? "").toLowerCase();
+    if (
+      code === "email_not_confirmed" ||
+      msg.includes("email not confirmed") ||
+      msg.includes("not confirmed")
+    ) {
+      return {
+        error:
+          "Seu email ainda não foi verificado. Confira sua caixa de entrada (e o spam) pelo link de confirmação enviado pela Supabase. Se não receber, fale com a gente: contato@trocascopa.com.br",
+      };
+    }
+    return { error: "E-mail ou senha incorretos." };
+  }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/home");
 }
 
 export async function loginWithGoogleAction(): Promise<ActionResult> {

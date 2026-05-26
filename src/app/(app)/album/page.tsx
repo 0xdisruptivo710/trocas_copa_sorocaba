@@ -32,10 +32,18 @@ export default async function AlbumPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <main className="space-y-4 px-6 py-6">
+    <main className="space-y-6 px-6 py-6 md:px-10 md:py-10">
       <header>
-        <h1 className="text-2xl font-semibold">Álbum</h1>
-        <p className="text-sm text-muted-foreground">Copa 2026 · 994 figurinhas</p>
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Sua coleção
+        </p>
+        <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight md:text-6xl">
+          Seu Álbum
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Marque o que você já colou e o que está repetido. O catálogo está
+          organizado em seções, como num álbum de verdade.
+        </p>
       </header>
 
       <AlbumPanorama panorama={panorama} />
