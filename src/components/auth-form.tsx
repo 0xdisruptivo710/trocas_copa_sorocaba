@@ -5,12 +5,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmailConfirmationOverlay } from "@/components/email-confirmation-overlay";
 
 type Mode = "login" | "signup" | "reset";
 
+type ActionReturn = {
+  error?: string;
+  needsEmailConfirmation?: boolean;
+  email?: string;
+} | void;
+
 interface Props {
   mode: Mode;
-  action: (formData: FormData) => Promise<{ error?: string } | void>;
+  action: (formData: FormData) => Promise<ActionReturn>;
   googleAction?: () => Promise<{ error?: string } | void>;
   hiddenFields?: Record<string, string>;
 }
@@ -18,6 +25,7 @@ interface Props {
 export function AuthForm({ mode, action, googleAction, hiddenFields }: Props) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [confirmEmail, setConfirmEmail] = useState<string | null>(null);
 
   const submit = (formData: FormData) => {
     setError(null);
@@ -26,6 +34,8 @@ export function AuthForm({ mode, action, googleAction, hiddenFields }: Props) {
       if (result?.error) {
         setError(result.error);
         toast.error(result.error);
+      } else if (result?.needsEmailConfirmation && result.email) {
+        setConfirmEmail(result.email);
       } else if (mode === "reset") {
         toast.success("Link enviado para seu e-mail.");
       }
@@ -92,6 +102,13 @@ export function AuthForm({ mode, action, googleAction, hiddenFields }: Props) {
         >
           Entrar com Google
         </Button>
+      )}
+
+      {confirmEmail && (
+        <EmailConfirmationOverlay
+          email={confirmEmail}
+          onClose={() => setConfirmEmail(null)}
+        />
       )}
     </form>
   );

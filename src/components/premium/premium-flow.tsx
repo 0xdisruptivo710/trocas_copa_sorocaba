@@ -219,7 +219,7 @@ export function PremiumFlow() {
       </Card>
 
       <p className="text-center text-xs text-muted-foreground">
-        Reembolso em até 7 dias — contato@trocascopa.com.br
+        Reembolso em até 7 dias — contato@trocascopasorocaba.com
       </p>
     </div>
   );

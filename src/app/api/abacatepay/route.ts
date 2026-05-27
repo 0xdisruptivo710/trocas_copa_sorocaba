@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { verifyWebhookSignature } from "@/lib/abacate/client";
 import { markChargePaid } from "@/lib/actions/premium";
+
+function safeEqual(a: string, b: string): boolean {
+  const A = Buffer.from(a);
+  const B = Buffer.from(b);
+  if (A.length !== B.length) return false;
+  return timingSafeEqual(A, B);
+}
 
 /**
  * Webhook endpoint do AbacatePay.
@@ -17,7 +25,7 @@ export async function POST(request: Request) {
   const queryparamSecret = url.searchParams.get("webhookSecret") ?? "";
   const expectedSecret = process.env.TROCAS_WEBHOOK_SECRET ?? "";
 
-  if (!expectedSecret || queryparamSecret !== expectedSecret) {
+  if (!expectedSecret || !safeEqual(queryparamSecret, expectedSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -22,10 +22,11 @@ export async function updateProfileAction(formData: FormData): Promise<Result> {
   }
   if (full_name.length < 2) return { error: "Nome muito curto." };
 
+  // Upsert protege contra o caso (raro) de profile não existir pro user
+  // (ex: backfill incompleto, race com o trigger). PK = id.
   const { error } = await supabase
     .from("trocas_profiles")
-    .update({ username, full_name, bio })
-    .eq("id", user.id);
+    .upsert({ id: user.id, username, full_name, bio }, { onConflict: "id" });
 
   if (error) {
     if (error.code === "23505") return { error: "Esse username já está em uso." };
@@ -55,13 +56,16 @@ export async function setLocationAction(
 
   const { error } = await supabase
     .from("trocas_profiles")
-    .update({
-      location: `SRID=4326;POINT(${longitude} ${latitude})` as unknown as null,
-      location_updated_at: new Date().toISOString(),
-      city,
-      state,
-    })
-    .eq("id", user.id);
+    .upsert(
+      {
+        id: user.id,
+        location: `SRID=4326;POINT(${longitude} ${latitude})` as unknown as null,
+        location_updated_at: new Date().toISOString(),
+        city,
+        state,
+      },
+      { onConflict: "id" },
+    );
 
   if (error) return { error: error.message };
 

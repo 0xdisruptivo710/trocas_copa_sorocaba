@@ -148,10 +148,10 @@ export default function SobrePage() {
           <p className="flex items-center gap-2">
             <Mail className="size-4 text-muted-foreground" aria-hidden />
             <a
-              href="mailto:contato@trocascopa.com.br"
+              href="mailto:contato@trocascopasorocaba.com"
               className="font-display font-bold text-primary hover:underline"
             >
-              contato@trocascopa.com.br
+              contato@trocascopasorocaba.com
             </a>
           </p>
           <p className="flex items-center gap-2 text-muted-foreground">

@@ -120,7 +120,7 @@ export default async function ContaPage() {
       </form>
 
       <p className="text-xs text-center text-muted-foreground">
-        Trocas Copa Sorocaba · suporte: contato@trocascopa.com.br
+        Trocas Copa Sorocaba · suporte: contato@trocascopasorocaba.com
       </p>
     </main>
   );

@@ -241,7 +241,7 @@ export default async function ParceiroDashboardPage({ params, searchParams }: Pa
       <footer className="border-t pt-6 text-xs text-muted-foreground">
         <p>
           Painel privado. Não compartilhe esta URL — quem tiver o link vê seus números.{" "}
-          Se desconfiar que vazou, fale com a gente em contato@trocascopa.com.br pra renovarmos
+          Se desconfiar que vazou, fale com a gente em contato@trocascopasorocaba.com pra renovarmos
           seu token.
         </p>
       </footer>

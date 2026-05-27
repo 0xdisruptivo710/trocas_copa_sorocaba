@@ -114,11 +114,11 @@ export default function MarketingLayout({
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
                   <a
-                    href="mailto:contato@trocascopa.com.br"
+                    href="mailto:contato@trocascopasorocaba.com"
                     className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                   >
                     <Mail className="size-3.5" aria-hidden />
-                    contato@trocascopa.com.br
+                    contato@trocascopasorocaba.com
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-1.5 text-muted-foreground">

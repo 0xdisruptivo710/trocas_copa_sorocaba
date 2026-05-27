@@ -43,7 +43,7 @@ async function consumePartnerAttribution(
   }
 }
 
-type ActionResult = { error?: string };
+type ActionResult = { error?: string; needsEmailConfirmation?: boolean; email?: string };
 
 export async function signupAction(formData: FormData): Promise<ActionResult> {
   const email = String(formData.get("email") ?? "").trim();
@@ -54,7 +54,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
   if (password.length < 8) return { error: "Senha precisa ter pelo menos 8 caracteres." };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -71,7 +71,28 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
   // Atribuição de partner (cookie tc_partner setado pelo middleware).
   await consumePartnerAttribution(supabase);
 
+  // Com "Confirm email" ligado no Supabase, signUp retorna user sem session.
+  // Mostra popup pedindo pro user verificar email antes de logar.
+  if (!data.session) {
+    return { needsEmailConfirmation: true, email };
+  }
+
   redirect("/onboarding/perfil");
+}
+
+export async function resendConfirmationAction(email: string): Promise<ActionResult> {
+  const cleaned = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned)) {
+    return { error: "E-mail inválido." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: cleaned,
+    options: { emailRedirectTo: `${env.SITE_URL}/callback` },
+  });
+  if (error) return { error: error.message };
+  return {};
 }
 
 export async function loginAction(formData: FormData): Promise<ActionResult> {
@@ -92,7 +113,7 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     ) {
       return {
         error:
-          "Seu email ainda não foi verificado. Confira sua caixa de entrada (e o spam) pelo link de confirmação enviado pela Supabase. Se não receber, fale com a gente: contato@trocascopa.com.br",
+          "Seu email ainda não foi verificado. Confira sua caixa de entrada (e o spam) pelo link de confirmação. Se não receber, fale com a gente: contato@trocascopasorocaba.com",
       };
     }
     return { error: "E-mail ou senha incorretos." };
