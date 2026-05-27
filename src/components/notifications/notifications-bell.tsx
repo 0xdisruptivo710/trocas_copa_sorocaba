@@ -70,8 +70,13 @@ export function NotificationsBell({
   useEffect(() => {
     const supabase = createClient();
     supabaseRef.current = supabase;
+    // Channel name precisa ser único por instância: o layout (app) monta dois
+    // NotificationsBell em paralelo (sidebar desktop + flutuante mobile).
+    // Sem o sufixo de variant, ambos tentam reusar o mesmo channel — o
+    // segundo a chamar .on() depois do .subscribe() do primeiro joga
+    // "cannot add postgres_changes callbacks after subscribe()" e loopa.
     const channel = supabase
-      .channel(`notif:${userId}`)
+      .channel(`notif:${userId}:${variant}`)
       .on(
         "postgres_changes",
         {
@@ -130,14 +135,15 @@ export function NotificationsBell({
         },
         (payload) => {
           const upd = payload.new as { id: string; read_at: string | null };
-          setItems((prev) =>
-            prev.map((p) => (p.id === upd.id ? { ...p, read_at: upd.read_at } : p)),
-          );
-          // Recalcula unread localmente.
-          setUnread((_) =>
-            items.filter((i) => (i.id === upd.id ? upd.read_at === null : i.read_at === null))
-              .length,
-          );
+          // Atualiza items e deriva unread do próprio next state — evita stale
+          // closure sobre `items` (que estourava o useEffect deps).
+          setItems((prev) => {
+            const next = prev.map((p) =>
+              p.id === upd.id ? { ...p, read_at: upd.read_at } : p,
+            );
+            setUnread(next.filter((i) => i.read_at === null).length);
+            return next;
+          });
         },
       )
       .subscribe();
@@ -145,8 +151,7 @@ export function NotificationsBell({
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, variant]);
 
   function handleClickItem(item: NotificationItem) {
     if (item.read_at === null) {
