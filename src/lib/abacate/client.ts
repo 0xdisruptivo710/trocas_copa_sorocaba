@@ -9,10 +9,13 @@
 
 const BASE_URL = "https://api.abacatepay.com";
 
+// Envelope AbacatePay: { data, error }. NÃO existe campo `success` — sucesso é
+// res.ok sem `error` (confirmado no SDK oficial, que decide por response.ok).
+// Erros vêm em `error` (visto em prod) ou `message` (usado pelo SDK).
 interface AbacateResponse<T> {
-  data: T | null;
-  error: string | null;
-  success: boolean;
+  data?: T | null;
+  error?: string | null;
+  message?: string | null;
 }
 
 interface AbacateCustomer {
@@ -70,22 +73,26 @@ async function request<T>(
   });
 
   const json = (await res.json()) as AbacateResponse<T>;
-  if (!res.ok || !json.success || !json.data) {
-    throw new Error(json.error ?? `AbacatePay ${method} ${path} failed (${res.status})`);
+  if (!res.ok || json.error) {
+    throw new Error(
+      json.error ?? json.message ?? `AbacatePay ${method} ${path} failed (${res.status})`,
+    );
   }
-  return json.data;
+  // Tolera tanto o envelope { data } quanto o recurso retornado "flat".
+  return (json.data ?? (json as unknown)) as T;
 }
 
 export async function createPixCharge(payload: CreatePixPayload): Promise<PixCharge> {
-  return request<PixCharge>("POST", "/v2/transparents/create", {
-    method: "PIX",
-    data: {
-      amount: payload.amount,
-      description: payload.description,
-      expiresIn: payload.expiresIn,
-      customer: payload.customer,
-      metadata: payload.metadata,
-    },
+  // Endpoint correto é /v1/pixQrCode/create com body FLAT. O antigo
+  // /v2/transparents/create + wrapper { method, data } era a causa do erro
+  // "Value should be one of 'object', 'object'" — nunca criou cobrança.
+  // Docs: https://docs.abacatepay.com/pages/pix-qrcode/create
+  return request<PixCharge>("POST", "/v1/pixQrCode/create", {
+    amount: payload.amount,
+    description: payload.description,
+    expiresIn: payload.expiresIn,
+    customer: payload.customer,
+    metadata: payload.metadata,
   });
 }
 
