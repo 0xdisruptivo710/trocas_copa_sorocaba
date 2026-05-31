@@ -5,6 +5,40 @@ import { createClient } from "@/lib/supabase/server";
 
 type Result = { error?: string };
 
+// Nominatim exige um User-Agent identificável (impossível setar no browser) e
+// bloqueia chamadas client-side com facilidade. Geocodificar no servidor é mais
+// confiável e cumpre a política. Ver: política de uso do Nominatim.
+const NOMINATIM_UA =
+  "TrocasCopaSorocaba/1.0 (+https://trocascopasorocaba.com; contato@trocascopasorocaba.com)";
+
+/**
+ * Cidade (nome) → coordenadas, via Nominatim no servidor.
+ * NUNCA lança: retorna null em qualquer falha pra não derrubar o transition do
+ * cliente (a causa do "This page couldn't load" no onboarding).
+ */
+export async function geocodeCityAction(
+  city: string,
+): Promise<{ lat: number; lng: number } | null> {
+  const clean = city.trim();
+  if (!clean) return null;
+  try {
+    const q = encodeURIComponent(`${clean}, SP, Brasil`);
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&limit=1&accept-language=pt-BR`,
+      { headers: { "User-Agent": NOMINATIM_UA }, cache: "no-store" },
+    );
+    if (!r.ok) return null;
+    const arr = (await r.json()) as Array<{ lat: string; lon: string }>;
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    const lat = Number.parseFloat(arr[0].lat);
+    const lng = Number.parseFloat(arr[0].lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    return { lat, lng };
+  } catch {
+    return null;
+  }
+}
+
 export async function updateProfileAction(formData: FormData): Promise<Result> {
   const supabase = await createClient();
   const {
@@ -54,18 +88,19 @@ export async function setLocationAction(
     return { error: "Coordenadas inválidas." };
   }
 
+  // .update() (não .upsert()): o profile já existe nesse ponto (criado no passo
+  // 1 do onboarding, que preenche username/full_name NOT NULL). Um upsert aqui
+  // sem esses campos quebra o type-check (Insert exige username/full_name) e
+  // falharia o NOT NULL em runtime — foi o que travou o build em 55891ba.
   const { error } = await supabase
     .from("trocas_profiles")
-    .upsert(
-      {
-        id: user.id,
-        location: `SRID=4326;POINT(${longitude} ${latitude})` as unknown as null,
-        location_updated_at: new Date().toISOString(),
-        city,
-        state,
-      },
-      { onConflict: "id" },
-    );
+    .update({
+      location: `SRID=4326;POINT(${longitude} ${latitude})` as unknown as null,
+      location_updated_at: new Date().toISOString(),
+      city,
+      state,
+    })
+    .eq("id", user.id);
 
   if (error) return { error: error.message };
 

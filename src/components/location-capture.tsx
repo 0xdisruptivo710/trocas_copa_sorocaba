@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setLocationAction } from "@/lib/actions/profile";
+import { setLocationAction, geocodeCityAction } from "@/lib/actions/profile";
 import { SOROCABA_CITIES, REGION_UF } from "@/lib/explorar/states";
 
 interface Props {
@@ -51,19 +51,6 @@ async function reverseGeocode(
     addr.county ??
     "Sorocaba";
   return { city, state: REGION_UF };
-}
-
-async function forwardGeocode(
-  city: string,
-): Promise<{ lat: number; lng: number } | null> {
-  const q = encodeURIComponent(`${city}, SP, Brasil`);
-  const r = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&limit=1&accept-language=pt-BR`,
-  );
-  if (!r.ok) return null;
-  const arr = (await r.json()) as Array<{ lat: string; lon: string }>;
-  if (arr.length === 0) return null;
-  return { lat: parseFloat(arr[0].lat), lng: parseFloat(arr[0].lon) };
 }
 
 function explainError(err: GeolocationPositionError): string {
@@ -124,19 +111,23 @@ export function LocationCapture({ nextHref }: Props) {
   const pickCity = (city: string) => {
     setManualCity(city);
     start(async () => {
-      const coords = await forwardGeocode(city);
-      if (!coords) {
-        toast.error("Não achei essa cidade. Confere a grafia.");
-        return;
+      try {
+        const coords = await geocodeCityAction(city);
+        if (!coords) {
+          toast.error("Não achei essa cidade. Confere a grafia ou usa o GPS.");
+          return;
+        }
+        setResolved({
+          latitude: coords.lat,
+          longitude: coords.lng,
+          city,
+          state: REGION_UF,
+        });
+        setShowManual(false);
+        toast.success(`Localização: ${city}, ${REGION_UF}`);
+      } catch {
+        toast.error("Erro ao buscar a cidade. Tenta de novo em instantes.");
       }
-      setResolved({
-        latitude: coords.lat,
-        longitude: coords.lng,
-        city,
-        state: REGION_UF,
-      });
-      setShowManual(false);
-      toast.success(`Localização: ${city}, ${REGION_UF}`);
     });
   };
 
