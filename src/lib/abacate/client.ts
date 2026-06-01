@@ -87,13 +87,20 @@ export async function createPixCharge(payload: CreatePixPayload): Promise<PixCha
   // /v2/transparents/create + wrapper { method, data } era a causa do erro
   // "Value should be one of 'object', 'object'" — nunca criou cobrança.
   // Docs: https://docs.abacatepay.com/pages/pix-qrcode/create
-  return request<PixCharge>("POST", "/v1/pixQrCode/create", {
+  const body: Record<string, unknown> = {
     amount: payload.amount,
     description: payload.description,
     expiresIn: payload.expiresIn,
-    customer: payload.customer,
     metadata: payload.metadata,
-  });
+  };
+  // `customer` só é enviado se tiver cellphone: a API valida customer.cellphone
+  // como string obrigatória quando customer está presente (mais estrito que o
+  // SDK, que marca opcional). Sem telefone no cadastro, omitimos customer — o
+  // pagador se identifica no app do banco ao pagar o PIX.
+  if (payload.customer?.cellphone) {
+    body.customer = payload.customer;
+  }
+  return request<PixCharge>("POST", "/v1/pixQrCode/create", body);
 }
 
 /**
