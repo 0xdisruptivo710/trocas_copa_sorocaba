@@ -83,24 +83,24 @@ async function request<T>(
 }
 
 export async function createPixCharge(payload: CreatePixPayload): Promise<PixCharge> {
-  // Endpoint correto é /v1/pixQrCode/create com body FLAT. O antigo
-  // /v2/transparents/create + wrapper { method, data } era a causa do erro
-  // "Value should be one of 'object', 'object'" — nunca criou cobrança.
-  // Docs: https://docs.abacatepay.com/pages/pix-qrcode/create
-  const body: Record<string, unknown> = {
+  // Endpoint v2 transparents: a chave da conta é v2 (chamar /v1/pixQrCode/create
+  // dá "API key version mismatch"). Estrutura { method, data }.
+  // Docs: https://docs.abacatepay.com/pages/transparents/create
+  // Só `method` e `data.amount` são obrigatórios; o resto é opcional.
+  const data: Record<string, unknown> = {
     amount: payload.amount,
     description: payload.description,
     expiresIn: payload.expiresIn,
     metadata: payload.metadata,
   };
-  // `customer` só é enviado se tiver cellphone: a API valida customer.cellphone
-  // como string obrigatória quando customer está presente (mais estrito que o
-  // SDK, que marca opcional). Sem telefone no cadastro, omitimos customer — o
-  // pagador se identifica no app do banco ao pagar o PIX.
+  // `customer` só vai se tiver cellphone: customer incompleto faz `data` falhar
+  // o schema do transparents ("Value should be one of 'object', 'object'") — era
+  // a causa original. Sem telefone no cadastro, omitimos; o pagador se
+  // identifica no app do banco ao pagar o PIX.
   if (payload.customer?.cellphone) {
-    body.customer = payload.customer;
+    data.customer = payload.customer;
   }
-  return request<PixCharge>("POST", "/v1/pixQrCode/create", body);
+  return request<PixCharge>("POST", "/v2/transparents/create", { method: "PIX", data });
 }
 
 /**
