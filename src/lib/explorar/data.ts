@@ -16,6 +16,8 @@ export interface Match {
   lat_approx: number | null;
   /** Lng snap a ~500m de grade (privacidade). Null se user sem localização. */
   lng_approx: number | null;
+  /** Boost "destaque" ativo — aparece no topo e ganha selo ⭐. */
+  is_boosted: boolean;
 }
 
 export type FindMatchesResult =

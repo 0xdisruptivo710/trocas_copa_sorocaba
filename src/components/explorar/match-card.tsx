@@ -18,6 +18,11 @@ export function MatchCard({ match }: { match: Match }) {
   return (
     <Link href={`/u/${match.username}`} className="block">
       <Card className="group relative flex items-center gap-3 overflow-hidden border-border/60 bg-gradient-to-br from-card via-card to-accent/5 p-3 shadow-[var(--shadow-cromo)] transition-all hover:-translate-y-0.5 hover:border-primary/40">
+        {match.is_boosted && (
+          <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-amber-950 shadow-sm">
+            ⭐ Destaque
+          </span>
+        )}
         <div className="relative shrink-0">
           <Avatar
             className={`size-12 ring-2 ring-offset-2 ring-offset-card ${
