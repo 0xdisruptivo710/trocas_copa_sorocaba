@@ -197,6 +197,13 @@ export async function markChargePaid(chargeId: string): Promise<void> {
 
   if (charge.product === "premium") {
     await sb.from("trocas_profiles").update({ is_premium: true }).eq("id", charge.user_id);
+  } else if (charge.product === "boost_destaque") {
+    await sb.rpc("trocas_grant_boost", {
+      p_user_id: charge.user_id,
+      p_kind: "destaque",
+      p_days: 7,
+      p_charge_id: chargeId,
+    });
   }
 
   revalidatePath("/conta", "layout");

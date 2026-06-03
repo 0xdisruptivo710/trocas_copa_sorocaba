@@ -127,7 +127,7 @@ export interface Database {
           id: string;
           user_id: string;
           abacate_charge_id: string;
-          product: "premium";
+          product: "premium" | "boost_destaque";
           amount_cents: number;
           status: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
           br_code: string | null;
@@ -143,7 +143,7 @@ export interface Database {
           id?: string;
           user_id: string;
           abacate_charge_id: string;
-          product: "premium";
+          product: "premium" | "boost_destaque";
           amount_cents: number;
           status?: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
           br_code?: string | null;
@@ -159,6 +159,33 @@ export interface Database {
           status: "PENDING" | "PAID" | "CANCELLED" | "EXPIRED" | "REFUNDED";
           paid_at: string | null;
           metadata: Record<string, unknown>;
+          updated_at: string;
+        }>;
+        Relationships: [];
+      };
+      trocas_boosts: {
+        Row: {
+          user_id: string;
+          kind: "destaque";
+          expires_at: string;
+          charge_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          kind: "destaque";
+          expires_at: string;
+          charge_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<{
+          user_id: string;
+          kind: "destaque";
+          expires_at: string;
+          charge_id: string | null;
+          created_at: string;
           updated_at: string;
         }>;
         Relationships: [];
@@ -599,7 +626,12 @@ export interface Database {
           match_score: number;
           lat_approx: number | null;
           lng_approx: number | null;
+          is_boosted: boolean;
         }[];
+      };
+      trocas_grant_boost: {
+        Args: { p_user_id: string; p_kind: string; p_days: number; p_charge_id: string };
+        Returns: undefined;
       };
       trocas_open_chat: {
         Args: {

@@ -129,3 +129,5 @@ export async function verifyWebhookSignature(
 
 export const PREMIUM_PRICE_CENTS = 2490; // R$ 24,90
 export const PREMIUM_DISCOUNT_CENTS = 500; // R$ 5,00 desconto com cupom
+export const BOOST_DESTAQUE_CENTS = 490; // R$ 4,90 — Destaque no Explorar (7 dias)
+export const BOOST_DESTAQUE_DAYS = 7;
