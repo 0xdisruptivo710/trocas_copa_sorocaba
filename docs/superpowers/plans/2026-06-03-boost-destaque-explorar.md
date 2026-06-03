@@ -151,7 +151,11 @@ create or replace function public.trocas_grant_boost(
 $$;
 
 -- 4) Recriar trocas_find_matches adicionando is_boosted (destacado-no-topo)
-create or replace function public.trocas_find_matches(
+-- DROP obrigatório: CREATE OR REPLACE não pode mudar o tipo de retorno (estamos
+-- acrescentando a coluna is_boosted ao RETURNS TABLE). DROP+CREATE roda atômico
+-- dentro da transação da migration.
+drop function if exists public.trocas_find_matches(numeric, integer, text, text, boolean);
+create function public.trocas_find_matches(
   p_radius_km numeric default 50, p_limit integer default 50,
   p_search text default null, p_state text default null,
   p_only_with_matches boolean default true)
