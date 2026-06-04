@@ -1,58 +1,26 @@
 "use client";
 
-import { useState, useTransition, useEffect, useRef } from "react";
-import Image from "next/image";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, Copy, Loader2 } from "lucide-react";
-import { createPremiumChargeAction, checkChargeStatus } from "@/lib/actions/premium";
+import { Check } from "lucide-react";
+import { createPremiumChargeAction } from "@/lib/actions/premium";
+import { PixCheckout, type PixCharge } from "@/components/payments/pix-checkout";
 import { useCelebrate } from "@/components/motion/celebrate";
 
 type Step = "intro" | "qrcode" | "paid";
-
-interface Charge {
-  chargeId: string;
-  brCode: string;
-  brCodeBase64: string;
-  amount: number;
-}
 
 export function PremiumFlow() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("intro");
   const [referralCode, setReferralCode] = useState("");
   const [pending, start] = useTransition();
-  const [charge, setCharge] = useState<Charge | null>(null);
-  const [copied, setCopied] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [charge, setCharge] = useState<PixCharge | null>(null);
   const { fire } = useCelebrate();
-
-  // Polling de status assim que a charge é criada (backup do webhook).
-  useEffect(() => {
-    if (!charge || step !== "qrcode") return;
-    pollRef.current = setInterval(async () => {
-      const r = await checkChargeStatus(charge.chargeId);
-      if (r.status === "PAID") {
-        setStep("paid");
-        if (pollRef.current) clearInterval(pollRef.current);
-        fire(null, "large");
-        toast.success("Pagamento confirmado!");
-        router.refresh();
-      } else if (r.status === "EXPIRED" || r.status === "CANCELLED") {
-        if (pollRef.current) clearInterval(pollRef.current);
-        toast.error("Cobrança expirou. Tenta de novo.");
-        setStep("intro");
-        setCharge(null);
-      }
-    }, 4000);
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-  }, [charge, step, router]);
 
   const onGenerate = () => {
     start(async () => {
@@ -69,13 +37,6 @@ export function PremiumFlow() {
       });
       setStep("qrcode");
     });
-  };
-
-  const onCopy = async () => {
-    if (!charge) return;
-    await navigator.clipboard.writeText(charge.brCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
   };
 
   if (step === "paid") {
@@ -97,62 +58,24 @@ export function PremiumFlow() {
   }
 
   if (step === "qrcode" && charge) {
-    const reais = (charge.amount / 100).toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-    });
     return (
-      <Card className="space-y-4 p-6">
-        <header>
-          <h2 className="text-lg font-semibold">Pague R$ {reais} via PIX</h2>
-          <p className="text-sm text-muted-foreground">
-            Aponte a câmera do banco pro QR ou copia e cola.
-          </p>
-        </header>
-
-        <div className="flex justify-center">
-          <Image
-            src={charge.brCodeBase64}
-            alt="QR Code PIX"
-            width={240}
-            height={240}
-            unoptimized
-            className="rounded-lg border bg-white"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="brcode">Código copia e cola</Label>
-          <div className="flex gap-2">
-            <Input
-              id="brcode"
-              value={charge.brCode}
-              readOnly
-              className="font-mono text-xs"
-            />
-            <Button type="button" variant="outline" size="icon" onClick={onCopy}>
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Aguardando confirmação…
-        </div>
-
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full"
-          onClick={() => {
-            if (pollRef.current) clearInterval(pollRef.current);
-            setStep("intro");
-            setCharge(null);
-          }}
-        >
-          Cancelar
-        </Button>
-      </Card>
+      <PixCheckout
+        charge={charge}
+        onPaid={() => {
+          setStep("paid");
+          fire(null, "large");
+          toast.success("Pagamento confirmado!");
+          router.refresh();
+        }}
+        onExpired={() => {
+          setStep("intro");
+          setCharge(null);
+        }}
+        onCancel={() => {
+          setStep("intro");
+          setCharge(null);
+        }}
+      />
     );
   }
 
@@ -183,7 +106,7 @@ export function PremiumFlow() {
           </li>
           <li className="flex items-start gap-2">
             <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-            <span>Reputação ⭐ + badge "Apoiador" no perfil</span>
+            <span>Reputação ⭐ + badge &quot;Apoiador&quot; no perfil</span>
           </li>
           <li className="flex items-start gap-2">
             <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />
