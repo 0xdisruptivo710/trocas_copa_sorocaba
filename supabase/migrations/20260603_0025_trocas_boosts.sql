@@ -35,6 +35,11 @@ create or replace function public.trocas_grant_boost(
     updated_at = now();
 $$;
 
+-- Segurança: a função é SECURITY DEFINER e recebe p_user_id, então por padrão
+-- (EXECUTE p/ PUBLIC) qualquer authenticated/anon poderia se auto-conceder boost
+-- grátis. Restringe a chamada ao service-role (webhook / markChargePaid).
+revoke execute on function public.trocas_grant_boost(uuid, text, int, text) from public, anon, authenticated;
+
 -- 4) Recriar trocas_find_matches adicionando is_boosted (destacado-no-topo)
 -- DROP obrigatório: CREATE OR REPLACE não pode mudar o tipo de retorno (estamos
 -- acrescentando a coluna is_boosted ao RETURNS TABLE). DROP+CREATE roda atômico

@@ -27,6 +27,14 @@ interface Props {
 export function PixCheckout({ charge, onPaid, onExpired, onCancel }: Props) {
   const [copied, setCopied] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Callbacks em ref: os pais passam closures novas a cada render. Sem isso, o
+  // efeito de polling re-subscreveria o setInterval a cada render (thrash).
+  const onPaidRef = useRef(onPaid);
+  const onExpiredRef = useRef(onExpired);
+  useEffect(() => {
+    onPaidRef.current = onPaid;
+    onExpiredRef.current = onExpired;
+  });
 
   // Polling de status (backup do webhook).
   useEffect(() => {
@@ -34,17 +42,17 @@ export function PixCheckout({ charge, onPaid, onExpired, onCancel }: Props) {
       const r = await checkChargeStatus(charge.chargeId);
       if (r.status === "PAID") {
         if (pollRef.current) clearInterval(pollRef.current);
-        onPaid();
+        onPaidRef.current();
       } else if (r.status === "EXPIRED" || r.status === "CANCELLED") {
         if (pollRef.current) clearInterval(pollRef.current);
         toast.error("Cobrança expirou. Tenta de novo.");
-        onExpired();
+        onExpiredRef.current();
       }
     }, 4000);
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [charge.chargeId, onPaid, onExpired]);
+  }, [charge.chargeId]);
 
   const reais = (charge.amount / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   const onCopy = async () => {
