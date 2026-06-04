@@ -88,6 +88,67 @@ describe.skipIf(!HAS_SERVICE)("trocas_boosts", () => {
     });
     expect(ins.error).not.toBeNull();
   });
+
+  it("trocas_find_matches põe o destacado no topo entre matches equivalentes", async () => {
+    const { data: sts } = await admin.from("trocas_stickers").select("code").limit(2);
+    const [s1, s2] = (sts ?? []).map((r) => r.code);
+    expect(Boolean(s1 && s2)).toBe(true);
+
+    const mk = async () => {
+      const u = await admin.auth.admin.createUser({
+        email: `m-${rand()}@trocas-test.local`,
+        password: "pwd12345",
+        email_confirm: true,
+      });
+      return u.data.user!.id;
+    };
+    const viewer = await mk();
+    const candA = await mk();
+    const candB = await mk();
+    const cleanup = [viewer, candA, candB];
+
+    try {
+      // viewer: tem s1 repetida (dá), não tem s2 (recebe)
+      await admin
+        .from("trocas_user_stickers")
+        .insert([{ user_id: viewer, sticker_code: s1, owned_count: 2 }]);
+      // candA e candB: faltam s1 (recebem do viewer) e têm s2 repetida (dão pro viewer)
+      for (const c of [candA, candB]) {
+        await admin
+          .from("trocas_user_stickers")
+          .insert([{ user_id: c, sticker_code: s2, owned_count: 2 }]);
+      }
+      // boost só no candB
+      await admin.rpc("trocas_grant_boost", {
+        p_user_id: candB,
+        p_kind: "destaque",
+        p_days: 7,
+        p_charge_id: "ch_rank",
+      });
+
+      // chama como viewer (precisa estar autenticado p/ auth.uid())
+      const client = createClient<Database>(URL, ANON, { auth: { persistSession: false } });
+      const vEmail = (await admin.auth.admin.getUserById(viewer)).data.user!.email!;
+      await client.auth.signInWithPassword({ email: vEmail, password: "pwd12345" });
+
+      const { data: matches, error } = await client.rpc("trocas_find_matches", {
+        p_radius_km: 100000,
+        p_limit: 50,
+        p_search: null,
+        p_state: null,
+        p_only_with_matches: true,
+      });
+      expect(error).toBeNull();
+      const ids = (matches ?? []).map((m) => m.other_user);
+      const ia = ids.indexOf(candA);
+      const ib = ids.indexOf(candB);
+      expect(ib).toBeGreaterThanOrEqual(0); // candB aparece
+      expect(ib).toBeLessThan(ia === -1 ? Number.MAX_SAFE_INTEGER : ia); // destacado antes
+      expect((matches ?? []).find((m) => m.other_user === candB)?.is_boosted).toBe(true);
+    } finally {
+      for (const id of cleanup) await admin.auth.admin.deleteUser(id);
+    }
+  });
 });
 
 describe.skipIf(HAS_SERVICE)("trocas_boosts (skipped — sem service role key)", () => {
