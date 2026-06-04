@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PremiumFlow } from "@/components/premium/premium-flow";
+import { BoostFlow } from "@/components/boost/boost-flow";
+import { getMyBoost } from "@/lib/actions/boosts";
 
 export default async function PremiumPage() {
   const supabase = await createClient();
@@ -16,6 +18,8 @@ export default async function PremiumPage() {
     .select("is_premium")
     .eq("id", user.id)
     .single();
+
+  const myBoost = await getMyBoost();
 
   return (
     <main className="space-y-4 px-6 py-6">
@@ -38,6 +42,20 @@ export default async function PremiumPage() {
       ) : (
         <PremiumFlow />
       )}
+
+      <div className="border-t pt-4">
+        {myBoost ? (
+          <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-700">
+            ⭐ Destaque ativo até{" "}
+            {new Date(myBoost.expires_at).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+            })}
+          </p>
+        ) : (
+          <BoostFlow />
+        )}
+      </div>
     </main>
   );
 }

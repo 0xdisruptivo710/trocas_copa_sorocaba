@@ -5,6 +5,8 @@ import { MatchCard } from "@/components/explorar/match-card";
 import { NoMatchesState } from "@/components/explorar/explore-empty";
 import { ExploreMapLoader } from "@/components/explorar/explore-map-loader";
 import { createClient } from "@/lib/supabase/server";
+import { getMyBoost } from "@/lib/actions/boosts";
+import { BoostFlow } from "@/components/boost/boost-flow";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -33,9 +35,10 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
   );
   const query = parseExploreQuery(sp);
 
-  const [result, myLatLng] = await Promise.all([
+  const [result, myLatLng, myBoost] = await Promise.all([
     findMatches(query, { onlyWithMatches: query.mode === "matches" }),
     query.view === "mapa" ? getMyApproxLatLng() : Promise.resolve(null),
+    getMyBoost(),
   ]);
 
   if (result.kind === "not_authenticated") {
@@ -84,6 +87,18 @@ export default async function ExplorarPage({ searchParams }: PageProps) {
       </header>
 
       <ExploreFilters query={query} />
+
+      {myBoost ? (
+        <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-700">
+          ⭐ Destaque ativo até{" "}
+          {new Date(myBoost.expires_at).toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+          })}
+        </p>
+      ) : (
+        <BoostFlow />
+      )}
 
       {query.view === "mapa" ? (
         <ExploreMapLoader
